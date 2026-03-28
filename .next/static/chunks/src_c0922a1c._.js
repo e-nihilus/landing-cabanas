@@ -60,7 +60,7 @@ function Navbar() {
                         className: "flex items-center gap-2",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-2xl",
+                                className: "text-4xl",
                                 children: "🏡"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Navbar.tsx",
@@ -68,7 +68,7 @@ function Navbar() {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "font-display text-xl font-semibold transition-colors duration-300 ".concat(scrolled ? "text-primary" : "text-white"),
+                                className: "font-display text-2xl font-semibold transition-colors duration-300 ".concat(scrolled ? "text-primary" : "text-white"),
                                 children: "El Encinar"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Navbar.tsx",
@@ -86,7 +86,7 @@ function Navbar() {
                         children: [
                             navLinks.map((link)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                     href: isHome ? link.href : "/".concat(link.href),
-                                    className: "text-sm font-medium transition-colors duration-300 hover:text-accent ".concat(scrolled ? "text-text-dark" : "text-white/90"),
+                                    className: "text-base font-bold transition-colors duration-300 hover:text-accent ".concat(scrolled ? "text-text-dark" : "text-white/90"),
                                     children: link.label
                                 }, link.href, false, {
                                     fileName: "[project]/src/components/Navbar.tsx",
@@ -95,7 +95,7 @@ function Navbar() {
                                 }, this)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: isHome ? "#reservas" : "/#reservas",
-                                className: "bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105",
+                                className: "bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-full text-base font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105",
                                 children: "Reservar Ahora"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Navbar.tsx",
@@ -154,7 +154,7 @@ function Navbar() {
                         navLinks.map((link)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: isHome ? link.href : "/".concat(link.href),
                                 onClick: ()=>setMenuOpen(false),
-                                className: "text-text-dark py-2 text-base font-medium hover:text-primary transition-colors",
+                                className: "text-text-dark py-2 text-base font-bold hover:text-primary transition-colors",
                                 children: link.label
                             }, link.href, false, {
                                 fileName: "[project]/src/components/Navbar.tsx",

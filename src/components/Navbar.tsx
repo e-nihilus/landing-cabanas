@@ -32,9 +32,9 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🏡</span>
+          <span className="text-4xl">🏡</span>
           <span
-            className={`font-display text-xl font-semibold transition-colors duration-300 ${
+            className={`font-display text-2xl font-semibold transition-colors duration-300 ${
               scrolled ? "text-primary" : "text-white"
             }`}
           >
@@ -48,7 +48,7 @@ export default function Navbar() {
             <a
               key={link.href}
               href={isHome ? link.href : `/${link.href}`}
-              className={`text-sm font-medium transition-colors duration-300 hover:text-accent ${
+              className={`text-base font-bold transition-colors duration-300 hover:text-accent ${
                 scrolled ? "text-text-dark" : "text-white/90"
               }`}
             >
@@ -57,7 +57,7 @@ export default function Navbar() {
           ))}
           <a
             href={isHome ? "#reservas" : "/#reservas"}
-            className="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
+            className="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-full text-base font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
           >
             Reservar Ahora
           </a>
@@ -113,7 +113,7 @@ export default function Navbar() {
               key={link.href}
               href={isHome ? link.href : `/${link.href}`}
               onClick={() => setMenuOpen(false)}
-              className="text-text-dark py-2 text-base font-medium hover:text-primary transition-colors"
+              className="text-text-dark py-2 text-base font-bold hover:text-primary transition-colors"
             >
               {link.label}
             </a>
