@@ -1,0 +1,30 @@
+{
+  "name": "cabanas-rurales",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node copy-images.js && next dev --turbopack",
+    "build": "node copy-images.js && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-date-range": "^2.0.1",
+    "date-fns": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/react-date-range": "^1.4.9",
+    "typescript": "^5.7.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "postcss": "^8.5.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.3.0"
+  }
+}

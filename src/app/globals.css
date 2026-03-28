@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2d5016;
+  --color-primary-light: #4a7c29;
+  --color-primary-dark: #1a3009;
+  --color-secondary: #8b7355;
+  --color-accent: #c9a96e;
+  --color-cream: #faf8f0;
+  --color-warm-white: #fefcf6;
+  --color-beige: #f5f0e8;
+  --color-beige-dark: #e8dfd0;
+  --color-text-dark: #2c2c2c;
+  --color-text-muted: #6b6b6b;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-warm-white text-text-dark antialiased;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.8s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* react-date-range overrides */
+.rdrCalendarWrapper {
+  background: transparent !important;
+  font-size: 14px !important;
+}
+
+.rdrDateDisplayWrapper {
+  background: transparent !important;
+}
+
+.rdrDayToday .rdrDayNumber span::after {
+  background: #2d5016 !important;
+}
+
+.rdrDay:not(.rdrDayPassive) .rdrInRange ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrStartEdge ~ .rdrDayNumber span,
+.rdrDay:not(.rdrDayPassive) .rdrEndEdge ~ .rdrDayNumber span {
+  color: white !important;
+}
+
+.rdrStartEdge,
+.rdrEndEdge {
+  background: #2d5016 !important;
+  border-radius: 8px !important;
+}
+
+.rdrInRange {
+  background: #d4e8c4 !important;
+}
+
+.rdrDayDisabled {
+  background: #f5f0e8 !important;
+}
