@@ -38,7 +38,7 @@ export default function Navbar() {
               scrolled ? "text-primary" : "text-white"
             }`}
           >
-            El Encinar
+            Chica de Navalmelendro
           </span>
         </a>
 

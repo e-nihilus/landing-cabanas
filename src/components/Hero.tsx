@@ -40,7 +40,7 @@ export default function Hero() {
         >
           Cabañas Rurales
           <br />
-          <span className="text-accent italic font-medium">El Encinar</span>
+          <span className="text-accent italic font-medium">Chica de Navalmelendro</span>
         </h1>
         <p
           className={`text-white/85 text-xl sm:text-2xl max-w-2xl mx-auto mb-10 leading-relaxed font-light transition-all duration-1000 delay-700 ${

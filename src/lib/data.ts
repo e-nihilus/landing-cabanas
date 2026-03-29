@@ -10,12 +10,15 @@ export interface Cabin {
   beds: number;
   pricePerNight: number;
   priceWeekend: number;
+  extraGuestPrice: number;
+  cleaningFee: number;
   weeklyDiscount: number;
   minStay: number;
   maxStay: number;
   features: string[];
   images: string[];
   isPrimary: boolean;
+  airbnbUrl: string;
 }
 
 export interface PoolInfo {
@@ -32,21 +35,11 @@ export interface Service {
   description: string;
 }
 
-export interface Review {
-  id: number;
-  name: string;
-  avatar: string;
-  rating: number;
-  date: string;
-  text: string;
-  cabin: string;
-}
-
 export const cabins: Cabin[] = [
   {
     id: "cabana-1",
-    name: "Cabaña El Roble",
-    slug: "el-roble",
+    name: "Cabaña Momentos Únicos",
+    slug: "momentos-unicos",
     description:
       "🌿 Tu refugio rural cerca de Madrid\n\nEscápate del ruido y disfruta de una acogedora cabaña en plena naturaleza, rodeada de tranquilidad y con vistas espectaculares. A tan solo 5 minutos en coche del pueblo más cercano y con conexión rápida a Madrid en transporte público, podrás desconectar sin renunciar a la comodidad.\n\n🏡 Un espacio pensado para disfrutar\n\nLa cabaña tiene capacidad para hasta 5 personas y cuenta con todas las comodidades:\n• Salón con cocina integrada\n• Baño con ducha\n• Dormitorio con mosquiteras\n• Sofá cama adicional\n\nPerfecta para una escapada en pareja, con amigos o en familia.\n\n🌞 Exterior y actividades\n\nDisfruta de un amplio espacio exterior ideal para relajarte o compartir momentos:\n• Piscina disponible en verano ☀️\n• Zona chill out para las noches bajo las estrellas\n• Barbacoa y mesa para reuniones\n• Espacio para niños y mascotas\n\nTambién podrás hacer rutas, paseos en bici o visitar lugares cercanos como Patones de Arriba o El Escorial.\n\n🐾 Naturaleza y animales\n\nJunto a la cabaña hay una pequeña granja con animales rescatados. Si quieres interactuar con ellos, solo tienes que pedirnos permiso 😊\n\n🎉 Perfecto para escapadas y celebraciones\n\nUn lugar ideal para desconectar o reunirte con los tuyos en un entorno natural, con posibilidad de ampliar la experiencia con tiendas de campaña (bajo solicitud).",
     shortDescription:
@@ -57,26 +50,69 @@ export const cabins: Cabin[] = [
     beds: 3,
     pricePerNight: 90,
     priceWeekend: 130,
+    extraGuestPrice: 25,
+    cleaningFee: 30,
     weeklyDiscount: 10,
     minStay: 2,
     maxStay: 180,
     features: [
-      "Vistas panorámicas",
-      "Vistas a la montaña",
-      "Cocina completa",
-      "Baño con ducha",
-      "Dormitorio con mosquiteras",
-      "Sofá cama adicional",
+      "Agua caliente",
+      "Agua corriente con temperatura suficiente",
       "Aire acondicionado",
-      "Calefacción",
-      "Lavadora",
-      "TV",
-      "Zona para trabajar",
-      "Entrada privada",
-      "Patio trasero",
-      "Tumbonas",
-      "Barbacoa",
+      "Almohadas y mantas adicionales",
+      "Alojamiento de una altura",
       "Aparcamiento gratuito",
+      "Aparcamiento gratuito en instalaciones",
+      "Bandeja de repostería",
+      "Barbacoa",
+      "Batidora",
+      "Botiquín",
+      "Cafetera",
+      "Café",
+      "Calefacción",
+      "Cocina completa",
+      "Comedor al aire libre",
+      "Congelador",
+      "Copas de vino",
+      "Disponible para estancias largas",
+      "Entrada privada",
+      "Espacio para guardar ropa",
+      "Fogones",
+      "Gel de ducha",
+      "Hervidor de agua",
+      "Horno",
+      "Juegos de mesa",
+      "Kitchenette",
+      "Lavadora",
+      "Libros y material de lectura",
+      "Limpieza disponible durante estancia",
+      "Mesa de comedor",
+      "Microondas",
+      "Mobiliario exterior",
+      "Mosquiteras",
+      "Nevera",
+      "Patio o balcón",
+      "Patio trasero",
+      "Perchas",
+      "Persianas o cortinas opacas",
+      "Piscina compartida",
+      "Plancha",
+      "Platos y cubiertos",
+      "Productos de limpieza",
+      "Ropa de cama algodón",
+      "Salón privado",
+      "Secador de pelo",
+      "Servicios básicos",
+      "Sofá cama adicional",
+      "Tendedero para ropa",
+      "Tostadora",
+      "Tumbonas",
+      "TV",
+      "Utensilios básicos de cocina",
+      "Utensilios de barbacoa",
+      "Vistas a la montaña",
+      "Vistas panorámicas",
+      "Zona para trabajar",
       "Acceso piscina",
       "Admite mascotas",
       "Personal 24h",
@@ -114,11 +150,12 @@ export const cabins: Cabin[] = [
       "/cabana1-30.jpg",
     ],
     isPrimary: true,
+    airbnbUrl: "https://www.airbnb.es/rooms/12333178",
   },
   {
     id: "cabana-2",
-    name: "Cabaña El Encinar",
-    slug: "el-encinar",
+    name: "Cabaña Vistas Impresionantes",
+    slug: "vistas-impresionantes",
     description:
       "🌄 Una cabaña única con vistas increíbles\n\nDescubre una acogedora cabaña tipo loft con personalidad propia, rodeada de naturaleza y con unas vistas espectaculares. Un lugar perfecto para desconectar y disfrutar de la tranquilidad, a tan solo 30 minutos de Madrid.\n\n🏡 Espacio cómodo y totalmente equipado\n\nLa cabaña, de estilo loft y con abundante luz natural, está pensada para ofrecerte una estancia cómoda y relajante:\n\n• Capacidad para hasta 4 personas\n• Cama de matrimonio + sofá cama\n• Cocina completamente equipada\n• Baño con ducha\n• Aire acondicionado y calefacción\n\nIncluye todo lo necesario: lavadora, secadora, lavavajillas, horno, microondas, cafetera y más.\n\n🌿 Exterior para disfrutar todo el día\n\nRelájate en su terraza privada de 20 m² con vistas abiertas al campo:\n\n• Barbacoa\n• Zona chill out\n• Mesa exterior\n\nAdemás, podrás acceder a zonas comunes como piscina y jacuzzi (según disponibilidad).\n\n🐾 Naturaleza, finca y convivencia\n\nLa cabaña se encuentra en una finca de más de 4 hectáreas, donde hay otras viviendas independientes. Cada alojamiento mantiene su privacidad, aunque los accesos y espacios exteriores son compartidos, por lo que es posible coincidir con otros huéspedes.\n\nTambién contamos con animales de granja y huerto propio 🌱\n\n🐶 Mascotas bienvenidas\n\nPuedes venir con tu mascota, siempre que sea sociable, esté bien educada y bajo control. Es importante respetar a otros huéspedes y animales de la finca.\n\n📍 Ubicación y acceso\n\nSituada en plena naturaleza:\n\n• A 6 km del pueblo más cercano\n• A 10 km de estación de tren (Colmenar Viejo)\n• A 30 minutos de Madrid\n\nEl acceso es por camino de tierra, transitable con vehículos normales. Es imprescindible disponer de coche, aunque ofrecemos recogida en estación bajo solicitud.\n\n🎉 Ideal para escapadas o pequeñas celebraciones\n\nUn espacio perfecto para desconectar en pareja, con amigos o en familia. También existe la posibilidad de organizar pequeñas reuniones utilizando zonas comunes como la piscina (bajo reserva y suplemento).",
     shortDescription:
@@ -129,6 +166,8 @@ export const cabins: Cabin[] = [
     beds: 2,
     pricePerNight: 89,
     priceWeekend: 110,
+    extraGuestPrice: 25,
+    cleaningFee: 30,
     weeklyDiscount: 10,
     minStay: 2,
     maxStay: 1125,
@@ -230,6 +269,7 @@ export const cabins: Cabin[] = [
       "/cabana2-39.jpg",
     ],
     isPrimary: true,
+    airbnbUrl: "https://www.airbnb.es/rooms/1447690288757347567",
   },
 ];
 
@@ -309,59 +349,4 @@ export const services: Service[] = [
   },
 ];
 
-export const reviews: Review[] = [
-  {
-    id: 1,
-    name: "María García",
-    avatar: "MG",
-    rating: 5,
-    date: "Febrero 2026",
-    text: "Un lugar mágico. Las cabañas son preciosas y la piscina con esas vistas es increíble. Volveremos seguro. El trato del anfitrión fue excepcional.",
-    cabin: "Cabaña El Roble",
-  },
-  {
-    id: 2,
-    name: "Carlos Martínez",
-    avatar: "CM",
-    rating: 5,
-    date: "Enero 2026",
-    text: "Perfecto para desconectar. Hemos pasado un fin de semana inolvidable. La cabaña estaba impecable y la zona de barbacoa es genial. 100% recomendable.",
-    cabin: "Cabaña El Encinar",
-  },
-  {
-    id: 3,
-    name: "Laura Sánchez",
-    avatar: "LS",
-    rating: 5,
-    date: "Diciembre 2025",
-    text: "Nos encantó la terraza con las luces y la pérgola. Cenamos bajo las estrellas y fue una experiencia única. La piscina panorámica es espectacular.",
-    cabin: "Cabaña El Encinar",
-  },
-  {
-    id: 4,
-    name: "Javier López",
-    avatar: "JL",
-    rating: 4,
-    date: "Noviembre 2025",
-    text: "Muy buen alojamiento rural. Tranquilidad total y naturaleza por todos lados. Las vistas desde la piscina son impresionantes. Ideal para familias.",
-    cabin: "Cabaña El Roble",
-  },
-  {
-    id: 5,
-    name: "Ana Rodríguez",
-    avatar: "AR",
-    rating: 5,
-    date: "Octubre 2025",
-    text: "Sin duda uno de los mejores sitios en los que hemos estado. Todo cuidado al detalle, la decoración rústica es preciosa y se respira paz.",
-    cabin: "Cabaña El Roble",
-  },
-  {
-    id: 6,
-    name: "Pedro Fernández",
-    avatar: "PF",
-    rating: 5,
-    date: "Septiembre 2025",
-    text: "Fuimos con amigos y lo pasamos genial. La zona chill-out de la cabaña El Encinar es perfecta para reuniones. Repetiremos en verano por la piscina.",
-    cabin: "Cabaña El Encinar",
-  },
-];
+

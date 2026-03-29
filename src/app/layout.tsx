@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cabañas Rurales El Encinar | Alojamiento con Piscina",
+  title: "Cabañas Chica de Navalmelendro | Alojamiento con Piscina",
   description:
     "Descubre nuestras cabañas rurales con piscina privada. Un refugio de tranquilidad rodeado de naturaleza. Reserva tu escapada perfecta.",
   keywords:

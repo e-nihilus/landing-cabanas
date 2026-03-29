@@ -6,7 +6,7 @@ import SectionHeader from "./SectionHeader";
 const galleryImages = [
   {
     src: "/cabana1-1.jpg",
-    alt: "Cabaña El Roble - Exterior",
+    alt: "Cabaña Momentos Únicos - Exterior",
     category: "Cabaña 1",
   },
   {
@@ -16,7 +16,7 @@ const galleryImages = [
   },
   {
     src: "/cabana2-9.jpg",
-    alt: "Cabaña El Encinar - Interior",
+    alt: "Cabaña Vistas Impresionantes - Interior",
     category: "Cabaña 2",
   },
   {

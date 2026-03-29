@@ -250,9 +250,9 @@ export default function BookingCalendar({
 
   // Calculate price with weekend and weekly discounts
   const calculatePrice = () => {
-    if (nights === 0) return 0;
+    if (nights === 0) return { base: 0, extraGuests: 0, cleaning: 0, discount: 0, total: 0 };
 
-    let total = 0;
+    let base = 0;
     let currentDate = new Date(booking.startDate!);
     const endDate = new Date(booking.endDate!);
 
@@ -265,20 +265,32 @@ export default function BookingCalendar({
         ? selectedCabin.priceWeekend
         : selectedCabin.pricePerNight;
 
-      total += nightPrice;
+      base += nightPrice;
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // Extra guest surcharge: 25€/day per person from the 3rd guest
+    const extraGuestCount = Math.max(0, booking.guests - 2);
+    const extraGuests = extraGuestCount * selectedCabin.extraGuestPrice * nights;
+
+    let subtotal = base + extraGuests;
+
     // Apply weekly discount if stay is 7+ nights
+    let discount = 0;
     if (nights >= 7 && selectedCabin.weeklyDiscount) {
-      const discount = (total * selectedCabin.weeklyDiscount) / 100;
-      total -= discount;
+      discount = Math.round((subtotal * selectedCabin.weeklyDiscount) / 100);
+      subtotal -= discount;
     }
 
-    return Math.round(total);
+    // Cleaning fee always added
+    const cleaning = selectedCabin.cleaningFee;
+    const total = Math.round(subtotal + cleaning);
+
+    return { base, extraGuests, cleaning, discount, total };
   };
 
-  const totalPrice = calculatePrice();
+  const priceBreakdown = calculatePrice();
+  const totalPrice = priceBreakdown.total;
 
   const handleSubmit = () => {
     setSubmitted(true);
@@ -488,11 +500,29 @@ export default function BookingCalendar({
                     <div className="border-t border-beige-dark pt-4 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-text-muted">
-                          {selectedCabin.pricePerNight}€ × {nights} noches
+                          Alojamiento × {nights} noches
                         </span>
-                        <span className="font-medium">{totalPrice}€</span>
+                        <span className="font-medium">{priceBreakdown.base}€</span>
                       </div>
-                      <div className="flex justify-between text-lg font-bold text-primary">
+                      {priceBreakdown.extraGuests > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-text-muted">
+                            {booking.guests - 2} pers. extra × {selectedCabin.extraGuestPrice}€/día × {nights} noches
+                          </span>
+                          <span className="font-medium">{priceBreakdown.extraGuests}€</span>
+                        </div>
+                      )}
+                      {priceBreakdown.discount > 0 && (
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>Dto. semanal (-{selectedCabin.weeklyDiscount}%)</span>
+                          <span className="font-medium">-{priceBreakdown.discount}€</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-muted">Limpieza</span>
+                        <span className="font-medium">{priceBreakdown.cleaning}€</span>
+                      </div>
+                      <div className="flex justify-between text-lg font-bold text-primary border-t border-beige-dark pt-2">
                         <span>Total</span>
                         <span>{totalPrice}€</span>
                       </div>
