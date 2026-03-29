@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const reservation = getReservationByStripeSession(session.id);
+    const reservation = await getReservationByStripeSession(session.id);
     if (reservation) {
-      updateReservationStatus(reservation.id, "confirmed");
+      await updateReservationStatus(reservation.id, "confirmed");
     }
   }
 

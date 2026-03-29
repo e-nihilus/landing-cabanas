@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Faltan datos obligatorios" }, { status: 400 });
     }
 
-    const available = checkAvailability(cabinId, checkIn, checkOut);
+    const available = await checkAvailability(cabinId, checkIn, checkOut);
     if (!available) {
       return NextResponse.json({ error: "Las fechas seleccionadas ya no están disponibles" }, { status: 409 });
     }
 
     const reservationId = uuidv4();
 
-    createReservation({
+    await createReservation({
       id: reservationId,
       cabinId,
       checkIn,

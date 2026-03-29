@@ -187,13 +187,13 @@ export default function PaymentScreen({
       <div className="bg-beige/50 rounded-xl p-4 mb-6">
         <p className="font-semibold text-text-dark">{cabinName}</p>
         <p className="text-text-muted text-sm mt-1">
-          {new Date(checkIn).toLocaleDateString("es-ES", {
+          {new Date(checkIn + "T12:00:00").toLocaleDateString("es-ES", {
             weekday: "short",
             day: "numeric",
             month: "short",
           })}{" "}
           →{" "}
-          {new Date(checkOut).toLocaleDateString("es-ES", {
+          {new Date(checkOut + "T12:00:00").toLocaleDateString("es-ES", {
             weekday: "short",
             day: "numeric",
             month: "short",

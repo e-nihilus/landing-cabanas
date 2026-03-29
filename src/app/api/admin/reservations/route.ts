@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  const reservations = getTransferReservations();
+  const reservations = await getTransferReservations();
   return NextResponse.json({ reservations });
 }
 
@@ -27,6 +27,6 @@ export async function PATCH(request: NextRequest) {
   }
 
   const status = action === "confirm" ? "confirmed" : "cancelled";
-  updateReservationStatus(id, status);
+  await updateReservationStatus(id, status);
   return NextResponse.json({ success: true, status });
 }

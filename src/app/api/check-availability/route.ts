@@ -9,6 +9,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
   }
 
-  const available = checkAvailability(cabinId, checkIn, checkOut);
+  const available = await checkAvailability(cabinId, checkIn, checkOut);
   return NextResponse.json({ available });
 }

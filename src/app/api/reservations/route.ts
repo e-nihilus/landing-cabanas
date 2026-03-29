@@ -7,6 +7,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "cabinId requerido" }, { status: 400 });
   }
 
-  const booked = getBookedDatesForCabin(cabinId);
+  const booked = await getBookedDatesForCabin(cabinId);
   return NextResponse.json({ booked });
 }

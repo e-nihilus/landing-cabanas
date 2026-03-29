@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate availability in backend
-    const available = checkAvailability(cabinId, checkIn, checkOut);
+    const available = await checkAvailability(cabinId, checkIn, checkOut);
     if (!available) {
       return NextResponse.json({ error: "Las fechas seleccionadas ya no están disponibles" }, { status: 409 });
     }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Save reservation with stripe session id
-    createReservation({
+    await createReservation({
       id: reservationId,
       cabinId,
       checkIn,

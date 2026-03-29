@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateReservationStatus, getReservationById } from "@/lib/db";
+import { updateReservationStatus } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     const captureData = await captureRes.json();
 
     if (captureData.status === "COMPLETED") {
-      updateReservationStatus(reservationId, "confirmed");
+      await updateReservationStatus(reservationId, "confirmed");
       return NextResponse.json({ success: true });
     }
 
