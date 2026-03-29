@@ -77,7 +77,7 @@ export function updateReservationStatus(id: string, status: Reservation["status"
 
 const ACTIVE_RESERVATION_FILTER = `
   status = 'confirmed'
-  OR (status = 'pending' AND createdAt > datetime('now', '-5 minutes'))
+  OR (status = 'pending' AND createdAt > datetime('now', '-24 hours'))
   OR (status = 'awaiting_transfer' AND createdAt > datetime('now', '-48 hours'))
 `;
 

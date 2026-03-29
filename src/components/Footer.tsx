@@ -41,7 +41,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-white/60 text-sm leading-relaxed">
-              Cabañas rurales con encanto y piscina panorámica. Tu refugio
+              Cabañas con encanto y piscina panorámica. Tu refugio
               perfecto en plena naturaleza.
             </p>
           </div>
@@ -51,8 +51,6 @@ export default function Footer() {
             <ul className="space-y-2">
               {[
                 { href: "#cabanas", label: "Cabañas" },
-                { href: "#galeria", label: "Galería" },
-                { href: "#servicios", label: "Servicios" },
                 { href: "#reservas", label: "Reservas" },
                 { href: "#opiniones", label: "Opiniones" },
               ].map((link) => (
@@ -71,9 +69,9 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-accent">Contacto</h4>
             <ul className="space-y-2 text-white/60 text-sm">
-              <li>📞 +34 600 000 000</li>
-              <li>✉️ info@cabanasencinar.es</li>
-              <li>📍 Sierra de los Encinares</li>
+              <li>📞 +34 647 622 690</li>
+              <li>✉️ chicadenavalmelendro@gmail.com</li>
+              <li>📍 Finca Navalmelendro, Ctra. M104 km 6,5</li>
             </ul>
           </div>
 
@@ -100,13 +98,13 @@ export default function Footer() {
           </p>
           <div className="flex gap-6">
             <a
-              href="#"
+              href="/politica-de-privacidad"
               className="text-white/40 hover:text-white/70 text-xs transition-colors"
             >
               Política de Privacidad
             </a>
             <a
-              href="#"
+              href="/aviso-legal"
               className="text-white/40 hover:text-white/70 text-xs transition-colors"
             >
               Aviso Legal

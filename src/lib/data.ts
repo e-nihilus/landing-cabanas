@@ -61,7 +61,6 @@ export const cabins: Cabin[] = [
       "Aire acondicionado",
       "Almohadas y mantas adicionales",
       "Alojamiento de una altura",
-      "Aparcamiento gratuito",
       "Aparcamiento gratuito en instalaciones",
       "Bandeja de repostería",
       "Barbacoa",

@@ -4,9 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Cabañas Chica de Navalmelendro | Alojamiento con Piscina",
   description:
-    "Descubre nuestras cabañas rurales con piscina privada. Un refugio de tranquilidad rodeado de naturaleza. Reserva tu escapada perfecta.",
+    "Descubre nuestras cabañas con piscina privada. Un refugio de tranquilidad rodeado de naturaleza. Reserva tu escapada perfecta.",
   keywords:
-    "cabañas rurales, alquiler cabaña, piscina, naturaleza, escapada rural, turismo rural",
+    "cabañas, alquiler cabaña, piscina, naturaleza, escapada rural, turismo rural",
 };
 
 export default function RootLayout({
@@ -17,6 +17,10 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        <link
+          rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

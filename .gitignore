@@ -26,6 +26,11 @@
 .DS_Store
 Thumbs.db
 
+# Database
+*.db
+*.db-wal
+*.db-shm
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

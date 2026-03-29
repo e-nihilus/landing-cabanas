@@ -9,7 +9,7 @@ export default function CabinsSection() {
         <SectionHeader
           subtitle="Nuestros alojamientos"
           title="Cabañas con Encanto"
-          description="Dos cabañas únicas con personalidad propia, rodeadas de naturaleza y con acceso a nuestra piscina panorámica. Cada una pensada para ofrecerte una experiencia inolvidable."
+          description="Dos cabañas únicas con personalidad propia, rodeadas de naturaleza. Cada una pensada para ofrecerte una experiencia inolvidable."
         />
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -27,9 +27,6 @@ export default function CabinsSection() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 flex items-center">
             <div className="px-8 sm:px-12 max-w-xl">
-              <p className="text-accent font-medium tracking-wider uppercase text-sm mb-2">
-                Incluida con tu estancia
-              </p>
               <h3 className="font-display text-3xl sm:text-4xl text-white font-bold mb-3">
                 Piscina Panorámica
               </h3>

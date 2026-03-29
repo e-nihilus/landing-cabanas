@@ -46,12 +46,12 @@ export default function Location() {
                 <div className="text-2xl">📍</div>
                 <div>
                   <h4 className="font-display text-lg font-semibold text-text-dark mb-1">
-                    Dirección
+                    Ubicación
                   </h4>
                   <p className="text-text-muted">
                     Finca Navalmelendro, Ctra. M104 km 6,5
                     <br />
-                    28770, Madrid, España
+                    28770 Colmenar Viejo, Madrid, España
                   </p>
                 </div>
               </div>
@@ -90,10 +90,10 @@ export default function Location() {
                     <br />
                     Email:{" "}
                     <a
-                      href="mailto:info@cabanasencinar.es"
+                      href="mailto:chicadenavalmelendro@gmail.com"
                       className="text-primary hover:text-primary-light font-medium"
                     >
-                      info@cabanasencinar.es
+                      chicadenavalmelendro@gmail.com
                     </a>
                   </p>
                 </div>
@@ -108,7 +108,7 @@ export default function Location() {
                     Horarios
                   </h4>
                   <p className="text-text-muted">
-                    Check-in: 15:00 – 20:00
+                    Check-in: a partir de las 15:00
                     <br />
                     Check-out: antes de las 12:00
                   </p>

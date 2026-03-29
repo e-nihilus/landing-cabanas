@@ -3,6 +3,28 @@
 import { useState } from "react";
 import type { Cabin } from "@/lib/data";
 
+const featureIcon: Record<string, string> = {
+  "Agua caliente": "🚿",
+  "Aire acondicionado": "❄️",
+  "Aparcamiento gratuito en instalaciones": "🅿️",
+  "Barbacoa": "🔥",
+  "Calefacción": "🔥",
+  "Cocina completa": "🍳",
+  "Entrada privada": "🚪",
+  "Lavadora": "🧺",
+  "Piscina compartida": "🏊",
+  "TV": "📺",
+  "Tumbonas": "☀️",
+  "Vistas a la montaña": "⛰️",
+  "Vistas panorámicas": "🏔️",
+  "Zona para trabajar": "💻",
+  "Acceso piscina": "🏊",
+  "Admite mascotas": "🐾",
+  "Sofá cama adicional": "🛋️",
+  "Patio trasero": "🌳",
+  "Llegada autónoma": "🔑",
+};
+
 interface CabinCardProps {
   cabin: Cabin;
   index: number;
@@ -60,8 +82,9 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
           {cabin.features.slice(0, 4).map((feature) => (
             <span
               key={feature}
-              className="bg-beige text-secondary text-xs px-3 py-1.5 rounded-full font-medium"
+              className="bg-beige text-secondary text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1"
             >
+              <span>{featureIcon[feature] || "✓"}</span>
               {feature}
             </span>
           ))}
