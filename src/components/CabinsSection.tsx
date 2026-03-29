@@ -36,7 +36,7 @@ export default function CabinsSection() {
                 nuestros huéspedes.
               </p>
               <a
-                href="/propiedades/piscina"
+                href="/alojamientos/piscina"
                 className="inline-block bg-accent hover:bg-accent-dark text-primary font-semibold py-3 px-8 rounded-xl transition-all duration-300 hover:shadow-lg"
               >
                 Ver Detalles

@@ -96,7 +96,7 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
         </div>
 
         <a
-           href={`/propiedades/${cabin.slug}`}
+           href={`/alojamientos/${cabin.slug}`}
            className="block w-full text-center bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
          >
            Ver Detalles

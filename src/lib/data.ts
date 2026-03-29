@@ -16,6 +16,7 @@ export interface Cabin {
   minStay: number;
   maxStay: number;
   features: string[];
+  video?: string;
   images: string[];
   isPrimary: boolean;
   airbnbUrl: string;
@@ -267,6 +268,7 @@ export const cabins: Cabin[] = [
       "/cabana2-38.jpg",
       "/cabana2-39.jpg",
     ],
+    video: "/video-cabaa-2.mp4",
     isPrimary: true,
     airbnbUrl: "https://www.airbnb.es/rooms/1447690288757347567",
   },

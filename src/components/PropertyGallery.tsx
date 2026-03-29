@@ -4,15 +4,17 @@ import { useState, useEffect } from "react";
 
 interface PropertyGalleryProps {
   images: Array<{ src: string; alt: string }>;
+  video?: string;
 }
 
-export default function PropertyGallery({ images }: PropertyGalleryProps) {
+export default function PropertyGallery({ images, video }: PropertyGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showAllGallery, setShowAllGallery] = useState(false);
+  const [showVideoLightbox, setShowVideoLightbox] = useState(false);
 
   // Bloquear scroll cuando se abre el modal
   useEffect(() => {
-    if (showAllGallery) {
+    if (showAllGallery || showVideoLightbox) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -20,13 +22,13 @@ export default function PropertyGallery({ images }: PropertyGalleryProps) {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [showAllGallery]);
+  }, [showAllGallery, showVideoLightbox]);
 
-  if (images.length <= 1) {
+  if (images.length <= 1 && !video) {
     return null;
   }
 
-  const initialImageCount = 8; // 2 filas x 4 columnas
+  const initialImageCount = video ? 7 : 8; // dejamos hueco para el video
   const displayedImages = images.slice(0, initialImageCount);
   const hasMoreImages = images.length > initialImageCount;
 
@@ -38,6 +40,33 @@ export default function PropertyGallery({ images }: PropertyGalleryProps) {
           Galería de Fotos
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Video thumbnail como primer elemento */}
+          {video && (
+            <button
+              onClick={() => setShowVideoLightbox(true)}
+              className="group relative overflow-hidden rounded-xl aspect-square cursor-pointer"
+            >
+              <video
+                src={video}
+                muted
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <svg
+                    className="w-7 h-7 text-primary ml-1"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          )}
+
           {displayedImages.map((img, index) => (
             <button
               key={index}
@@ -66,6 +95,28 @@ export default function PropertyGallery({ images }: PropertyGalleryProps) {
           </div>
         )}
       </div>
+
+      {/* Video Lightbox */}
+      {showVideoLightbox && video && (
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setShowVideoLightbox(false)}
+        >
+          <button
+            onClick={() => setShowVideoLightbox(false)}
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-4xl transition-colors z-10"
+          >
+            ×
+          </button>
+          <video
+            src={video}
+            controls
+            autoPlay
+            className="max-w-full max-h-[85vh] rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
       {/* Lightbox */}
       {lightboxIndex !== null && !showAllGallery && (
@@ -128,6 +179,33 @@ export default function PropertyGallery({ images }: PropertyGalleryProps) {
               Todas las imágenes
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* Video también en la galería completa */}
+              {video && (
+                <button
+                  onClick={() => setShowVideoLightbox(true)}
+                  className="group relative overflow-hidden rounded-xl aspect-square cursor-pointer"
+                >
+                  <video
+                    src={video}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      <svg
+                        className="w-7 h-7 text-primary ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </button>
+              )}
+
               {images.map((img, index) => (
                 <button
                   key={index}
