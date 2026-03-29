@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { cabins, pool, type Cabin } from "@/lib/data";
 import SectionHeader from "./SectionHeader";
+import PaymentScreen from "./PaymentScreen";
 
 interface BookingState {
   cabinId: string;
@@ -17,34 +18,6 @@ interface BookingState {
 interface BookingCalendarProps {
   initialProperty?: Cabin | null;
 }
-
-// Simulate some booked dates
-const getBookedDates = (cabinId: string): Date[] => {
-  const booked: Date[] = [];
-  const now = new Date();
-
-  // Add some random booked dates for realism
-  if (cabinId === "cabana-1") {
-    for (let i = 5; i <= 8; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-      booked.push(d);
-    }
-    for (let i = 15; i <= 18; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-      booked.push(d);
-    }
-  } else {
-    for (let i = 3; i <= 5; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-      booked.push(d);
-    }
-    for (let i = 20; i <= 24; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-      booked.push(d);
-    }
-  }
-  return booked;
-};
 
 function isSameDay(a: Date, b: Date) {
   return (
@@ -65,6 +38,19 @@ function getDaysInMonth(year: number, month: number) {
 function getFirstDayOfMonth(year: number, month: number) {
   const day = new Date(year, month, 1).getDay();
   return day === 0 ? 6 : day - 1; // Monday start
+}
+
+// Generate all dates between two ISO date strings
+function generateDatesBetween(checkIn: string, checkOut: string): Date[] {
+  const dates: Date[] = [];
+  const start = new Date(checkIn);
+  const end = new Date(checkOut);
+  const current = new Date(start);
+  while (current < end) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
 }
 
 const WEEKDAYS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
@@ -196,15 +182,33 @@ export default function BookingCalendar({
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
   const [submitted, setSubmitted] = useState(false);
-  const [step, setStep] = useState<"dates" | "details">("dates");
+  const [step, setStep] = useState<"dates" | "details" | "payment">("dates");
+  const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  const [formErrors, setFormErrors] = useState<{ email?: string; phone?: string }>({});
 
-  const selectedCabin = booking.cabinId === "piscina" 
+  // Fetch booked dates from backend
+  const fetchBookedDates = useCallback(async (cabinId: string) => {
+    try {
+      const res = await fetch(`/api/reservations?cabinId=${cabinId}`);
+      const data = await res.json();
+      const dates: Date[] = [];
+      for (const range of data.booked || []) {
+        const generated = generateDatesBetween(range.checkIn, range.checkOut);
+        dates.push(...generated);
+      }
+      setBookedDates(dates);
+    } catch {
+      setBookedDates([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBookedDates(booking.cabinId);
+  }, [booking.cabinId, fetchBookedDates]);
+
+  const selectedCabin = booking.cabinId === "piscina"
     ? { name: pool.name, shortDescription: pool.description, pricePerNight: 0, capacity: 999 } as any
     : cabins.find((c) => c.id === booking.cabinId)!;
-  const bookedDates = useMemo(
-    () => getBookedDates(booking.cabinId),
-    [booking.cabinId]
-  );
 
   const handleMonthChange = (dir: number) => {
     let newMonth = calendarMonth + dir;
@@ -227,7 +231,6 @@ export default function BookingCalendar({
       if (date < booking.startDate) {
         setBooking({ ...booking, startDate: date, endDate: null });
       } else {
-        // Check if any booked date is in range
         const hasBookedInRange = bookedDates.some(
           (b) => b > booking.startDate! && b < date
         );
@@ -248,20 +251,18 @@ export default function BookingCalendar({
         )
       : 0;
 
-  // Calculate price with weekend and weekly discounts
   const calculatePrice = () => {
     if (nights === 0) return { base: 0, extraGuests: 0, cleaning: 0, discount: 0, total: 0 };
 
     let base = 0;
-    let currentDate = new Date(booking.startDate!);
+    const currentDate = new Date(booking.startDate!);
     const endDate = new Date(booking.endDate!);
 
-    // Iterate through each night
     while (currentDate < endDate) {
       const dayOfWeek = currentDate.getDay();
-      const isWeekend = dayOfWeek === 5 || dayOfWeek === 6; // Friday or Saturday
+      const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
-      let nightPrice = isWeekend
+      const nightPrice = isWeekend
         ? selectedCabin.priceWeekend
         : selectedCabin.pricePerNight;
 
@@ -269,20 +270,17 @@ export default function BookingCalendar({
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // Extra guest surcharge: 25€/day per person from the 3rd guest
     const extraGuestCount = Math.max(0, booking.guests - 2);
     const extraGuests = extraGuestCount * selectedCabin.extraGuestPrice * nights;
 
     let subtotal = base + extraGuests;
 
-    // Apply weekly discount if stay is 7+ nights
     let discount = 0;
     if (nights >= 7 && selectedCabin.weeklyDiscount) {
       discount = Math.round((subtotal * selectedCabin.weeklyDiscount) / 100);
       subtotal -= discount;
     }
 
-    // Cleaning fee always added
     const cleaning = selectedCabin.cleaningFee;
     const total = Math.round(subtotal + cleaning);
 
@@ -292,13 +290,40 @@ export default function BookingCalendar({
   const priceBreakdown = calculatePrice();
   const totalPrice = priceBreakdown.total;
 
-  const handleSubmit = () => {
+  const formatDateISO = (date: Date) => {
+    return date.toISOString().split("T")[0];
+  };
+
+  const validateForm = (): boolean => {
+    const errors: { email?: string; phone?: string } = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[+]?[\d\s()-]{7,}$/;
+
+    if (!emailRegex.test(booking.email)) {
+      errors.email = "Introduce un email válido";
+    }
+    if (!phoneRegex.test(booking.phone)) {
+      errors.phone = "Introduce un teléfono válido (mín. 7 dígitos)";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleGoToPayment = () => {
+    if (validateForm()) {
+      setStep("payment");
+    }
+  };
+
+  const handlePaymentSuccess = () => {
     setSubmitted(true);
+    fetchBookedDates(booking.cabinId);
     setTimeout(() => {
       setSubmitted(false);
       setStep("dates");
       setBooking({
-        cabinId: cabins[0].id,
+        cabinId: initialCabinId,
         startDate: null,
         endDate: null,
         guests: 2,
@@ -346,7 +371,7 @@ export default function BookingCalendar({
           light
         />
 
-        {/* Cabin selector - only show if not on a specific property page */}
+        {/* Cabin selector */}
         {!initialProperty && (
           <div className="flex justify-center gap-4 mb-10 flex-wrap">
             {cabins.map((cabin) => (
@@ -392,7 +417,22 @@ export default function BookingCalendar({
         )}
 
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
-          {step === "dates" ? (
+          {step === "payment" ? (
+            <PaymentScreen
+              cabinId={booking.cabinId}
+              cabinName={selectedCabin.name}
+              checkIn={formatDateISO(booking.startDate!)}
+              checkOut={formatDateISO(booking.endDate!)}
+              nights={nights}
+              guests={booking.guests}
+              totalPrice={totalPrice}
+              name={booking.name}
+              email={booking.email}
+              phone={booking.phone}
+              onBack={() => setStep("details")}
+              onSuccess={handlePaymentSuccess}
+            />
+          ) : step === "dates" ? (
             <div className="grid md:grid-cols-2">
               {/* Calendar */}
               <div className="p-6 sm:p-8">
@@ -544,6 +584,7 @@ export default function BookingCalendar({
               </div>
             </div>
           ) : (
+            /* Details step */
             <div className="p-6 sm:p-10 max-w-lg mx-auto">
               <button
                 onClick={() => setStep("dates")}
@@ -584,12 +625,18 @@ export default function BookingCalendar({
                   <input
                     type="email"
                     value={booking.email}
-                    onChange={(e) =>
-                      setBooking({ ...booking, email: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setBooking({ ...booking, email: e.target.value });
+                      if (formErrors.email) setFormErrors({ ...formErrors, email: undefined });
+                    }}
                     placeholder="tu@email.com"
-                    className="w-full px-4 py-3 border border-beige-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
+                      formErrors.email ? "border-red-400" : "border-beige-dark"
+                    }`}
                   />
+                  {formErrors.email && (
+                    <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-dark mb-1.5">
@@ -598,17 +645,23 @@ export default function BookingCalendar({
                   <input
                     type="tel"
                     value={booking.phone}
-                    onChange={(e) =>
-                      setBooking({ ...booking, phone: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setBooking({ ...booking, phone: e.target.value });
+                      if (formErrors.phone) setFormErrors({ ...formErrors, phone: undefined });
+                    }}
                     placeholder="+34 600 000 000"
-                    className="w-full px-4 py-3 border border-beige-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
+                      formErrors.phone ? "border-red-400" : "border-beige-dark"
+                    }`}
                   />
+                  {formErrors.phone && (
+                    <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>
+                  )}
                 </div>
               </div>
 
               <button
-                onClick={handleSubmit}
+                onClick={handleGoToPayment}
                 disabled={!booking.name || !booking.email || !booking.phone}
                 className={`w-full mt-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
                   booking.name && booking.email && booking.phone
@@ -616,7 +669,7 @@ export default function BookingCalendar({
                     : "bg-beige-dark text-text-muted cursor-not-allowed"
                 }`}
               >
-                Confirmar Reserva · {totalPrice}€
+                Ir al Pago · {totalPrice}€
               </button>
 
               <p className="text-center text-text-muted text-xs mt-4">
