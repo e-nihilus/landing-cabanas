@@ -652,7 +652,7 @@ export default function BookingCalendar({
                       setBooking({ ...booking, phone: e.target.value });
                       if (formErrors.phone) setFormErrors({ ...formErrors, phone: undefined });
                     }}
-                    placeholder="+34 600 000 000"
+                    placeholder="+34 647 622 690"
                     className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
                       formErrors.phone ? "border-red-400" : "border-beige-dark"
                     }`}

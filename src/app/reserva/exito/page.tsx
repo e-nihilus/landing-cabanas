@@ -1,13 +1,6 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import Link from "next/link";
 
-function ExitoContent() {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-
+export default function ExitoPage() {
   return (
     <div className="min-h-screen bg-primary-dark flex items-center justify-center px-4">
       <div className="bg-white rounded-3xl p-12 shadow-2xl max-w-lg w-full text-center">
@@ -19,11 +12,6 @@ function ExitoContent() {
           Tu pago se ha procesado correctamente. Hemos recibido tu reserva y te
           enviaremos un email de confirmación en breve.
         </p>
-        {sessionId && (
-          <p className="text-text-muted text-sm mb-6">
-            Referencia: <span className="font-mono text-xs">{sessionId.slice(0, 20)}...</span>
-          </p>
-        )}
         <div className="space-y-3">
           <Link
             href="/"
@@ -37,19 +25,5 @@ function ExitoContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ExitoPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-primary-dark flex items-center justify-center">
-          <div className="text-white text-xl">Cargando...</div>
-        </div>
-      }
-    >
-      <ExitoContent />
-    </Suspense>
   );
 }

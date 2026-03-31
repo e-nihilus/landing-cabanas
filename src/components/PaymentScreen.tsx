@@ -99,11 +99,10 @@ export default function PaymentScreen({
     phone,
   };
 
-  const handleStripe = async () => {
+  const handleBizum = async () => {
     setLoading(true);
     setError("");
     try {
-      // Check availability first
       const availRes = await fetch("/api/check-availability", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,16 +115,16 @@ export default function PaymentScreen({
         return;
       }
 
-      const res = await fetch("/api/create-checkout-session", {
+      const res = await fetch("/api/bizum-reservation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),
       });
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.reservationId) {
+        window.location.href = `/reserva/bizum?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
       } else {
-        setError(data.error || "Error al crear la sesión de pago");
+        setError(data.error || "Error al crear la reserva");
         setLoading(false);
       }
     } catch {
@@ -210,27 +209,6 @@ export default function PaymentScreen({
       )}
 
       <div className="space-y-4">
-        {/* Stripe - Tarjeta / Bizum */}
-        <button
-          onClick={handleStripe}
-          disabled={loading}
-          className="w-full py-4 rounded-xl font-bold text-lg bg-primary text-white hover:bg-primary-light hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Procesando...
-            </span>
-          ) : (
-            <>
-              💳 Pagar con Tarjeta / Bizum
-            </>
-          )}
-        </button>
-
         {/* PayPal */}
         {paypalClientId && (
           <div className="border border-beige-dark rounded-xl p-4">
@@ -244,6 +222,15 @@ export default function PaymentScreen({
             />
           </div>
         )}
+
+        {/* Bizum */}
+        <button
+          onClick={handleBizum}
+          disabled={loading}
+          className="w-full py-4 rounded-xl font-bold text-lg border-2 border-primary text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        >
+          📱 Pagar con Bizum
+        </button>
 
         {/* Transfer */}
         <button
