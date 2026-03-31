@@ -47,7 +47,7 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
       <div className="relative h-72 overflow-hidden">
         <img
           src={image}
-          alt={cabin.name}
+          alt={`${cabin.name} - Cabaña con piscina cerca de Madrid`}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           onLoad={() => setImageLoaded(true)}
         />

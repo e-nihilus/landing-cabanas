@@ -21,7 +21,7 @@ export default function Location() {
         <SectionHeader
           subtitle="¿Dónde estamos?"
           title="Nuestra Ubicación"
-          description="Situadas en plena naturaleza, nuestras cabañas ofrecen el retiro perfecto sin renunciar a la accesibilidad."
+          description="Nuestras cabañas están en Colmenar Viejo, Madrid, rodeadas de naturaleza y a solo 30 minutos del centro. El entorno perfecto para tu escapada."
         />
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">

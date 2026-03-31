@@ -370,7 +370,7 @@ export default function BookingCalendar({
         <SectionHeader
           subtitle="Reserva tu escapada"
           title="Calendario de Disponibilidad"
-          description="Selecciona tu cabaña, elige las fechas y disfruta. Cada cabaña tiene su calendario independiente."
+          description="Selecciona tu cabaña, elige las fechas y disfruta."
           light
         />
 

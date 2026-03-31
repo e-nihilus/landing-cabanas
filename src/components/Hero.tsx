@@ -31,7 +31,7 @@ export default function Hero() {
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          Naturaleza y confort en perfecta armonía
+          Escapada con piscina cerca de Madrid
         </p>
         <h1
           className={`font-display text-6xl sm:text-7xl lg:text-8xl text-white font-bold leading-tight mb-6 transition-all duration-1000 delay-500 ${
@@ -47,9 +47,8 @@ export default function Hero() {
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          Descubre la tranquilidad de nuestras cabañas de madera con piscina
-          panorámica. Un rincón exclusivo donde la naturaleza y el confort se
-          encuentran.
+          Cabañas de madera con piscina panorámica y vistas al valle en plena
+          naturaleza. Tu escapada perfecta a solo 30 minutos de Madrid.
         </p>
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 delay-900 ${

@@ -41,8 +41,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-white/60 text-sm leading-relaxed">
-              Cabañas con encanto y piscina panorámica. Tu refugio
-              perfecto en plena naturaleza.
+              Cabañas de madera con piscina panorámica cerca de Madrid. Tu escapada
+              perfecta en plena naturaleza.
             </p>
           </div>
 

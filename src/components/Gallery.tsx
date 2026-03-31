@@ -6,42 +6,42 @@ import SectionHeader from "./SectionHeader";
 const galleryImages = [
   {
     src: "/cabana1-1.jpg",
-    alt: "Cabaña Momentos Únicos - Exterior",
+    alt: "Exterior de cabaña de madera con vistas a la naturaleza cerca de Madrid",
     category: "Cabaña 1",
   },
   {
     src: "/piscina-1.jpg",
-    alt: "Piscina panorámica",
+    alt: "Piscina panorámica con vistas al valle en cabañas cerca de Madrid",
     category: "Piscina",
   },
   {
     src: "/cabana2-9.jpg",
-    alt: "Cabaña Vistas Impresionantes - Interior",
+    alt: "Interior luminoso de cabaña tipo loft con decoración acogedora",
     category: "Cabaña 2",
   },
   {
     src: "/piscina-2.jpg",
-    alt: "Zona de relax",
+    alt: "Zona de relax junto a la piscina con tumbonas y vistas al campo",
     category: "Piscina",
   },
   {
     src: "/cabana1-2.jpg",
-    alt: "Interior acogedor",
+    alt: "Interior acogedor de cabaña de madera con cocina equipada",
     category: "Cabaña 1",
   },
   {
     src: "/cabana2-3.jpg",
-    alt: "Terraza con vistas",
+    alt: "Terraza privada con vistas panorámicas al entorno natural",
     category: "Cabaña 2",
   },
   {
     src: "/cabana1-3.jpg",
-    alt: "Naturaleza",
+    alt: "Entorno natural de las cabañas con encinas y senderos en el campo",
     category: "Entorno",
   },
   {
     src: "/piscina-3.jpg",
-    alt: "Vistas panorámicas",
+    alt: "Vistas panorámicas al valle desde la zona de piscina",
     category: "Entorno",
   },
 ];
@@ -60,7 +60,7 @@ export default function Gallery() {
         <SectionHeader
           subtitle="Galería"
           title="Descubre Cada Rincón"
-          description="Explora nuestras cabañas, la piscina y el entorno natural que te espera."
+          description="Descubre cada rincón de nuestras cabañas de madera, la piscina panorámica y el entorno natural que te espera cerca de Madrid."
         />
 
         {/* Filters */}

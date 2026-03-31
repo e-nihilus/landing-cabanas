@@ -1,7 +1,6 @@
-"use client";
-
 import { cabins, pool } from "@/lib/data";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookingCalendar from "@/components/BookingCalendar";
@@ -13,6 +12,39 @@ interface PropertyPageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
+  const { slug } = await params;
+
+  if (slug === "piscina") {
+    return {
+      title: "Piscina Panorámica con Vistas al Valle",
+      description:
+        "Piscina de diseño moderno con vistas panorámicas al valle. Incluida en todas las cabañas de Chica de Navalmelendro, cerca de Madrid.",
+      openGraph: {
+        title: "Piscina Panorámica | Cabañas Chica de Navalmelendro",
+        description:
+          "Piscina panorámica con zona solárium y vistas al valle en plena naturaleza cerca de Madrid.",
+        images: [{ url: "/piscina-1.jpg", width: 1200, height: 630, alt: "Piscina panorámica con vistas al valle" }],
+      },
+    };
+  }
+
+  const cabin = cabins.find((c) => c.slug === slug);
+  if (!cabin) {
+    return { title: "Alojamiento no encontrado" };
+  }
+
+  return {
+    title: `${cabin.name} - Cabaña con Piscina cerca de Madrid`,
+    description: `${cabin.shortDescription} Desde ${cabin.pricePerNight}€/noche. Reserva tu escapada en plena naturaleza.`,
+    openGraph: {
+      title: `${cabin.name} | Cabañas Chica de Navalmelendro`,
+      description: cabin.shortDescription,
+      images: [{ url: cabin.images[0], width: 1200, height: 630, alt: `${cabin.name} - Cabaña con piscina cerca de Madrid` }],
+    },
+  };
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
@@ -50,7 +82,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         <section className="relative h-96 overflow-hidden">
           <img
             src={images[0]?.src || "/cabana1-1.jpg"}
-            alt={property.name}
+            alt={`${property.name} - Alojamiento con piscina en plena naturaleza cerca de Madrid`}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

@@ -8,8 +8,8 @@ export default function CabinsSection() {
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           subtitle="Nuestros alojamientos"
-          title="Cabañas con Encanto"
-          description="Dos cabañas únicas con personalidad propia, rodeadas de naturaleza. Cada una pensada para ofrecerte una experiencia inolvidable."
+          title="Cabañas con Piscina cerca de Madrid"
+          description="Dos cabañas de madera únicas rodeadas de naturaleza, con piscina panorámica y vistas a Madrid. Tu escapada perfecta en el campo a solo 30 minutos de Madrid."
         />
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -22,7 +22,7 @@ export default function CabinsSection() {
         <div className="mt-16 relative rounded-2xl overflow-hidden max-w-5xl mx-auto">
           <img
             src="/piscina-1.jpg"
-            alt="Piscina panorámica"
+            alt="Piscina panorámica con vistas al valle en cabañas cerca de Madrid"
             className="w-full h-64 sm:h-80 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 flex items-center">

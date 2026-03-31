@@ -52,7 +52,7 @@ export default function AvisoLegal() {
                 </li>
                 <li>
                   <strong className="text-text-dark">Actividad:</strong>{" "}
-                  Alquiler de alojamientos rurales
+                  Alquiler de cabañas y alojamientos
                 </li>
               </ul>
             </section>
@@ -63,7 +63,7 @@ export default function AvisoLegal() {
               </h2>
               <p>
                 El presente sitio web tiene como finalidad proporcionar
-                información sobre los servicios de alquiler de cabañas rurales
+                información sobre los servicios de alquiler de cabañas
                 ofrecidos por Cabañas Chica de Navalmelendro, así como
                 facilitar la gestión de reservas.
               </p>
