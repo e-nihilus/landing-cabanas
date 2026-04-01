@@ -1,26 +1,32 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-
-const navLinks = [
-  { href: "#cabanas", label: "Cabañas" },
-  { href: "#reservas", label: "Reservas" },
-  { href: "#opiniones", label: "Opiniones" },
-  { href: "#ubicacion", label: "Ubicación" },
-];
+import { useTranslations, useLocale } from "next-intl";
+import { usePathname } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 
 export default function Navbar() {
+  const t = useTranslations("Navbar");
+  const locale = useLocale();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+
+  const navLinks = [
+    { href: "#cabanas", label: t("cabins") },
+    { href: "#reservas", label: t("bookings") },
+    { href: "#opiniones", label: t("reviews") },
+    { href: "#ubicacion", label: t("location") },
+  ];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const otherLocale = locale === "es" ? "en" : "es";
 
   return (
     <nav
@@ -31,7 +37,7 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
+        <a href={`/${locale}`} className="flex items-center gap-2">
           <span className="text-4xl">🏡</span>
           <span
             className={`font-display text-2xl font-semibold transition-colors duration-300 ${
@@ -47,7 +53,7 @@ export default function Navbar() {
           {navLinks.map((link) => (
             <a
               key={link.href}
-              href={isHome ? link.href : `/${link.href}`}
+              href={isHome ? link.href : `/${locale}/${link.href}`}
               className={`text-base font-bold transition-colors duration-300 hover:text-accent ${
                 scrolled ? "text-text-dark" : "text-white/90"
               }`}
@@ -55,11 +61,24 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
+
+          {/* Language switcher */}
           <a
-            href={isHome ? "#reservas" : "/#reservas"}
+            href={`/${otherLocale}${pathname === "/" ? "" : pathname}`}
+            className={`text-sm font-bold px-3 py-1.5 rounded-full border transition-all duration-300 ${
+              scrolled
+                ? "border-primary/30 text-primary hover:bg-primary hover:text-white"
+                : "border-white/40 text-white/90 hover:bg-white/20"
+            }`}
+          >
+            {otherLocale.toUpperCase()}
+          </a>
+
+          <a
+            href={isHome ? "#reservas" : `/${locale}/#reservas`}
             className="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-full text-base font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
           >
-            Reservar Ahora
+            {t("bookNow")}
           </a>
         </div>
 
@@ -67,7 +86,7 @@ export default function Navbar() {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden flex flex-col gap-1.5 p-2"
-          aria-label="Menú"
+          aria-label={t("menu")}
         >
           <span
             className={`block w-6 h-0.5 transition-all duration-300 ${
@@ -111,19 +130,29 @@ export default function Navbar() {
           {navLinks.map((link) => (
             <a
               key={link.href}
-              href={isHome ? link.href : `/${link.href}`}
+              href={isHome ? link.href : `/${locale}/${link.href}`}
               onClick={() => setMenuOpen(false)}
               className="text-text-dark py-2 text-base font-bold hover:text-primary transition-colors"
             >
               {link.label}
             </a>
           ))}
+
+          {/* Language switcher mobile */}
           <a
-            href={isHome ? "#reservas" : "/#reservas"}
+            href={`/${otherLocale}${pathname === "/" ? "" : pathname}`}
+            onClick={() => setMenuOpen(false)}
+            className="text-primary py-2 text-base font-bold hover:text-primary-light transition-colors"
+          >
+            🌐 {otherLocale.toUpperCase()}
+          </a>
+
+          <a
+            href={isHome ? "#reservas" : `/${locale}/#reservas`}
             onClick={() => setMenuOpen(false)}
             className="bg-primary text-white text-center py-3 rounded-full font-semibold mt-2 hover:bg-primary-light transition-colors"
           >
-            Reservar Ahora
+            {t("bookNow")}
           </a>
         </div>
       </div>

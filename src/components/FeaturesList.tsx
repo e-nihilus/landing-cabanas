@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface Feature {
   name: string;
@@ -84,6 +85,8 @@ export default function FeaturesList({
   features,
   initialCount = 8,
 }: FeaturesListProps) {
+  const t = useTranslations("PropertyPage");
+  const td = useTranslations("Data");
   const [expanded, setExpanded] = useState(false);
 
   const displayFeatures = expanded ? features : features.slice(0, initialCount);
@@ -98,7 +101,7 @@ export default function FeaturesList({
             className="flex items-start gap-3 p-4 bg-beige rounded-lg hover:bg-beige-dark transition-colors"
           >
             <span className="text-2xl flex-shrink-0">{getIcon(feature)}</span>
-            <span className="text-text-dark font-medium">{feature}</span>
+            <span className="text-text-dark font-medium">{td.has(`features.${feature}`) ? td(`features.${feature}`) : feature}</span>
           </div>
         ))}
       </div>
@@ -108,7 +111,7 @@ export default function FeaturesList({
           onClick={() => setExpanded(!expanded)}
           className="mt-6 px-6 py-3 bg-primary hover:bg-primary-light text-white rounded-xl font-semibold transition-all duration-300"
         >
-          {expanded ? "Ver menos" : "Ver más servicios"}
+          {expanded ? t("showLess") : t("showMore")}
         </button>
       )}
     </div>

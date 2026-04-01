@@ -1,19 +1,23 @@
 "use client";
 
 import { cabins } from "@/lib/data";
+import { useTranslations } from "next-intl";
 import SectionHeader from "./SectionHeader";
 
 export default function Reviews() {
+  const t = useTranslations("Reviews");
+  const td = useTranslations("Data");
+
   return (
     <section id="opiniones" className="py-24 px-4 bg-white">
       <div className="max-w-4xl mx-auto">
         <SectionHeader
-          subtitle="Lo que dicen nuestros huéspedes"
-          title="Opiniones Reales"
+          subtitle={t("subtitle")}
+          title={t("title")}
         />
 
         <p className="text-center text-text-muted mb-10">
-          Consulta las opiniones verificadas de nuestros huéspedes en Airbnb.
+          {t("description")}
         </p>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -32,15 +36,15 @@ export default function Reviews() {
               </div>
 
               <h3 className="font-display text-lg font-semibold text-text-dark mb-2">
-                {cabin.name}
+                {td(`cabins.${cabin.id}.name`)}
               </h3>
 
               <p className="text-text-muted text-sm mb-4">
-                Lee las opiniones verificadas en Airbnb
+                {t("readReviews")}
               </p>
 
               <span className="inline-flex items-center gap-2 text-primary font-semibold text-sm group-hover:text-primary-light transition-colors">
-                Ver evaluaciones en Airbnb
+                {t("viewReviews")}
                 <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>

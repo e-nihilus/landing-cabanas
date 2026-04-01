@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/", "/reserva/"],
+      disallow: ["/admin/", "/api/", "/reserva/", "/*/admin/", "/*/reserva/"],
     },
     sitemap: "https://chicadenavalmelendro.com/sitemap.xml",
   };

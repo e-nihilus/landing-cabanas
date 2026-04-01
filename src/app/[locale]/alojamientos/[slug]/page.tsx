@@ -1,6 +1,7 @@
 import { cabins, pool } from "@/lib/data";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations, getLocale } from "next-intl/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BookingCalendar from "@/components/BookingCalendar";
@@ -16,39 +17,41 @@ interface PropertyPageProps {
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const t = await getTranslations("PropertyPage");
 
   if (slug === "piscina") {
     return {
-      title: "Piscina Panorámica con Vistas al Valle",
-      description:
-        "Piscina de diseño moderno con vistas panorámicas al valle. Incluida en todas las cabañas de Chica de Navalmelendro, cerca de Madrid.",
+      title: t("poolTitle"),
+      description: t("poolMetaDesc"),
       openGraph: {
-        title: "Piscina Panorámica | Cabañas Chica de Navalmelendro",
-        description:
-          "Piscina panorámica con zona solárium y vistas al valle en plena naturaleza cerca de Madrid.",
-        images: [{ url: "/piscina-1.jpg", width: 1200, height: 630, alt: "Piscina panorámica con vistas al valle" }],
+        title: t("poolOgTitle"),
+        description: t("poolOgDesc"),
+        images: [{ url: "/piscina-1.jpg", width: 1200, height: 630, alt: t("poolTitle") }],
       },
     };
   }
 
   const cabin = cabins.find((c) => c.slug === slug);
   if (!cabin) {
-    return { title: "Alojamiento no encontrado" };
+    return { title: t("notFound") };
   }
 
   return {
-    title: `${cabin.name} - Cabaña con Piscina cerca de Madrid`,
-    description: `${cabin.shortDescription} Desde ${cabin.pricePerNight}€/noche. Reserva tu escapada en plena naturaleza.`,
+    title: cabin.name,
+    description: `${cabin.shortDescription} ${t("cabinMetaDesc", { description: "", price: cabin.pricePerNight })}`,
     openGraph: {
-      title: `${cabin.name} | Cabañas Chica de Navalmelendro`,
+      title: t("cabinOgTitle", { name: cabin.name }),
       description: cabin.shortDescription,
-      images: [{ url: cabin.images[0], width: 1200, height: 630, alt: `${cabin.name} - Cabaña con piscina cerca de Madrid` }],
+      images: [{ url: cabin.images[0], width: 1200, height: 630, alt: cabin.name }],
     },
   };
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = await params;
+  const t = await getTranslations("PropertyPage");
+  const td = await getTranslations("Data");
+  const locale = await getLocale();
 
   // Buscar cabaña o piscina por slug
   let property: any = null;
@@ -69,10 +72,20 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     features = cabin.features;
   }
 
+  const propertyName = type === "pool"
+    ? td("pool.name")
+    : td(`cabins.${property.id}.name`);
+  const propertyDescription = type === "pool"
+    ? td("pool.description")
+    : td(`cabins.${property.id}.description`);
+  const propertyShortDescription = type === "cabin"
+    ? td(`cabins.${property.id}.shortDescription`)
+    : "";
+
   const images =
     type === "pool"
-      ? pool.images.map((src) => ({ src, alt: property.name }))
-      : property.images.map((src: string) => ({ src, alt: property.name }));
+      ? pool.images.map((src) => ({ src, alt: propertyName }))
+      : property.images.map((src: string) => ({ src, alt: propertyName }));
 
   return (
     <>
@@ -82,14 +95,14 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         <section className="relative h-96 overflow-hidden">
           <img
             src={images[0]?.src || "/cabana1-1.jpg"}
-            alt={`${property.name} - Alojamiento con piscina en plena naturaleza cerca de Madrid`}
+            alt={propertyName}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute inset-0 flex items-end">
             <div className="px-4 sm:px-8 pb-8 max-w-7xl mx-auto w-full">
               <h1 className="font-display text-4xl sm:text-5xl text-white font-bold">
-                {property.name}
+                {propertyName}
               </h1>
             </div>
           </div>
@@ -102,23 +115,23 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               {/* Description */}
               <div className="md:col-span-2">
                 <h2 className="font-display text-2xl font-bold text-text-dark mb-4">
-                  Descripción
+                  {t("description")}
                 </h2>
                 {type === "cabin" ? (
                   <DescriptionModal
-                    title={property.name}
-                    description={property.description}
+                    title={propertyName}
+                    description={propertyDescription}
                   />
                 ) : (
                   <p className="text-text-muted leading-relaxed mb-8 whitespace-pre-wrap">
-                    {property.description}
+                    {propertyDescription}
                   </p>
                 )}
 
                 {/* Features Grid */}
                 <div className="mt-12 pt-8 border-t border-beige-dark">
                   <h3 className="font-display text-xl font-bold text-text-dark mb-6">
-                    Servicios y Características
+                    {t("servicesTitle")}
                   </h3>
                   <FeaturesList features={features} initialCount={8} />
                 </div>
@@ -132,23 +145,23 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                       {/* Precios */}
                       <div className="mb-6">
                         <h4 className="font-display font-bold text-text-dark mb-3">
-                          Precios
+                          {t("prices")}
                         </h4>
                         <div className="text-3xl font-bold text-primary mb-1">
                           {property.pricePerNight}€
                         </div>
                         <div className="text-text-muted text-sm mb-4">
-                          por noche
+                          {t("perNight")}
                         </div>
                         <div className="text-sm text-text-muted space-y-2">
                           <p>
-                            Precio de fin de semana:{" "}
+                            {t("weekendPrice")}{" "}
                             <span className="font-semibold text-text-dark">
                               {property.priceWeekend}€
                             </span>
                           </p>
                           <p>
-                            Descuento semanal:{" "}
+                            {t("weeklyDiscount")}{" "}
                             <span className="font-semibold text-text-dark">
                               {property.weeklyDiscount}%
                             </span>
@@ -159,39 +172,38 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                       {/* Disponibilidad */}
                       <div className="mb-6 pb-6 border-b border-beige-dark">
                         <h4 className="font-display font-bold text-text-dark mb-3">
-                          Disponibilidad
+                          {t("availability")}
                         </h4>
                         <div className="text-sm text-text-muted space-y-2">
                           <p>
-                            Estancias de {property.minStay} a{" "}
-                            {property.maxStay} noches
+                           {t("staysRange", { min: property.minStay, max: property.maxStay })}
                           </p>
-                          <p>Preáviso mínimo de {property.minStay} días</p>
+                          <p>{t("minNotice", { min: property.minStay })}</p>
                         </div>
                       </div>
 
                       {/* Características */}
                       <div className="space-y-4 mb-6 pb-6 border-b border-beige-dark">
                         <div className="flex justify-between">
-                          <span className="text-text-muted">Capacidad</span>
+                          <span className="text-text-muted">{t("capacity")}</span>
                           <span className="font-semibold text-text-dark">
-                            {property.capacity} huéspedes
+                            {property.capacity} {t("guestsLabel")}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-text-muted">Dormitorios</span>
+                          <span className="text-text-muted">{t("bedrooms")}</span>
                           <span className="font-semibold text-text-dark">
                             {property.bedrooms}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-text-muted">Baños</span>
+                          <span className="text-text-muted">{t("bathrooms")}</span>
                           <span className="font-semibold text-text-dark">
                             {property.bathrooms}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-text-muted">Camas</span>
+                          <span className="text-text-muted">{t("beds")}</span>
                           <span className="font-semibold text-text-dark">
                             {property.beds}
                           </span>
@@ -202,7 +214,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                         href="#reservas"
                         className="block w-full text-center bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
                       >
-                        Reservar Ahora
+                        {t("bookNow")}
                       </a>
                     </>
                   )}
@@ -210,14 +222,13 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                   {type === "pool" && (
                     <>
                       <p className="text-text-muted text-sm leading-relaxed mb-6">
-                        Disfruta de nuestra piscina panorámica durante tu estancia.
-                        Incluida en todas las reservas de cabañas.
+                        {t("poolNote")}
                       </p>
                       <a
                         href="#reservas"
                         className="block w-full text-center bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
                       >
-                        Reservar Cabaña
+                        {t("bookCabin")}
                       </a>
                     </>
                   )}

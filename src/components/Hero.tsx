@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function Hero() {
+  const t = useTranslations("Hero");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -31,14 +33,14 @@ export default function Hero() {
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          Escapada con piscina cerca de Madrid
+          {t("subtitle")}
         </p>
         <h1
           className={`font-display text-6xl sm:text-7xl lg:text-8xl text-white font-bold leading-tight mb-6 transition-all duration-1000 delay-500 ${
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          Cabañas
+          {t("titleLine1")}
           <br />
           <span className="text-accent italic font-medium">Chica de Navalmelendro</span>
         </h1>
@@ -47,8 +49,7 @@ export default function Hero() {
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          Cabañas de madera con piscina panorámica y vistas al valle en plena
-          naturaleza. Tu escapada perfecta a solo 30 minutos de Madrid.
+          {t("description")}
         </p>
         <div
           className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 delay-900 ${
@@ -59,7 +60,7 @@ export default function Hero() {
             href="#reservas"
             className="bg-primary hover:bg-primary-light text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-2xl hover:scale-105 inline-flex items-center justify-center gap-2"
           >
-            Reservar Ahora
+            {t("bookNow")}
             <svg
               className="w-5 h-5"
               fill="none"
@@ -87,7 +88,7 @@ export default function Hero() {
           href="#cabanas"
           className="flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-colors"
         >
-          <span className="text-xs uppercase tracking-widest">Desplázate</span>
+          <span className="text-xs uppercase tracking-widest">{t("scroll")}</span>
           <svg
             className="w-5 h-5 animate-bounce"
             fill="none"

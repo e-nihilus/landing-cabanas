@@ -1,11 +1,13 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import SectionHeader from "./SectionHeader";
 import { useEffect } from "react";
 
 export default function Location() {
+  const t = useTranslations("Location");
+
   useEffect(() => {
-    // Ocultar el popup del mapa después de que cargue
     const timer = setTimeout(() => {
       const button = document.querySelector('[aria-label="Cerrar"]') as HTMLElement;
       if (button) {
@@ -19,9 +21,9 @@ export default function Location() {
     <section id="ubicacion" className="py-24 px-4 bg-cream">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
-          subtitle="¿Dónde estamos?"
-          title="Nuestra Ubicación"
-          description="Nuestras cabañas están en Colmenar Viejo, Madrid, rodeadas de naturaleza y a solo 30 minutos del centro. El entorno perfecto para tu escapada."
+          subtitle={t("subtitle")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -35,7 +37,7 @@ export default function Location() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Ubicación Chica de Navalmelendro"
+              title={t("mapTitle")}
             />
           </div>
 
@@ -46,12 +48,12 @@ export default function Location() {
                 <div className="text-2xl">📍</div>
                 <div>
                   <h4 className="font-display text-lg font-semibold text-text-dark mb-1">
-                    Ubicación
+                    {t("locationTitle")}
                   </h4>
                   <p className="text-text-muted">
-                    Finca Navalmelendro, Ctra. M104 km 6,5
+                    {t("address")}
                     <br />
-                    28770 Colmenar Viejo, Madrid, España
+                    {t("city")}
                   </p>
                 </div>
               </div>
@@ -62,11 +64,10 @@ export default function Location() {
                 <div className="text-2xl">🚗</div>
                 <div>
                   <h4 className="font-display text-lg font-semibold text-text-dark mb-1">
-                    Cómo Llegar
+                    {t("howToGet")}
                   </h4>
                   <p className="text-text-muted">
-                    A 15 minutos del pueblo más cercano. Carretera asfaltada
-                    hasta la entrada. Parking privado incluido.
+                    {t("howToGetDesc")}
                   </p>
                 </div>
               </div>
@@ -77,10 +78,10 @@ export default function Location() {
                 <div className="text-2xl">📞</div>
                 <div>
                   <h4 className="font-display text-lg font-semibold text-text-dark mb-1">
-                    Contacto
+                    {t("contact")}
                   </h4>
                   <p className="text-text-muted">
-                    Teléfono:{" "}
+                    {t("phoneLabel")}{" "}
                     <a
                       href="tel:+34647622690"
                       className="text-primary hover:text-primary-light font-medium"
@@ -88,7 +89,7 @@ export default function Location() {
                       +34 647 622 690
                     </a>
                     <br />
-                    Email:{" "}
+                    {t("emailLabel")}{" "}
                     <a
                       href="mailto:chicadenavalmelendro@gmail.com"
                       className="text-primary hover:text-primary-light font-medium"
@@ -105,12 +106,12 @@ export default function Location() {
                 <div className="text-2xl">⏰</div>
                 <div>
                   <h4 className="font-display text-lg font-semibold text-text-dark mb-1">
-                    Horarios
+                    {t("schedules")}
                   </h4>
                   <p className="text-text-muted">
-                    Check-in: a partir de las 15:00
+                    {t("checkInTime")}
                     <br />
-                    Check-out: antes de las 12:00
+                    {t("checkOutTime")}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 interface PropertyGalleryProps {
   images: Array<{ src: string; alt: string }>;
@@ -11,6 +12,7 @@ export default function PropertyGallery({ images, video }: PropertyGalleryProps)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [showAllGallery, setShowAllGallery] = useState(false);
   const [showVideoLightbox, setShowVideoLightbox] = useState(false);
+  const t = useTranslations("PropertyPage");
 
   // Bloquear scroll cuando se abre el modal
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function PropertyGallery({ images, video }: PropertyGalleryProps)
       {/* Gallery */}
       <div className="mt-12 pt-8 border-t border-beige-dark">
         <h2 className="font-display text-2xl font-bold text-text-dark mb-6">
-          Galería de Fotos
+          {t("gallery")}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {/* Video thumbnail como primer elemento */}
@@ -90,7 +92,7 @@ export default function PropertyGallery({ images, video }: PropertyGalleryProps)
               onClick={() => setShowAllGallery(true)}
               className="inline-block bg-primary hover:bg-primary-light text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
             >
-              Ver todas las imágenes ({images.length})
+              {t("viewAllImages")} ({images.length})
             </button>
           </div>
         )}
@@ -176,7 +178,7 @@ export default function PropertyGallery({ images, video }: PropertyGalleryProps)
 
           <div className="max-w-7xl w-full py-8" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-white text-3xl font-display font-bold mb-6 pt-8">
-              Todas las imágenes
+              {t("allImages")}
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {/* Video también en la galería completa */}

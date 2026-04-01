@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import type { Cabin } from "@/lib/data";
 
 const featureIcon: Record<string, string> = {
@@ -31,8 +32,13 @@ interface CabinCardProps {
 }
 
 export default function CabinCard({ cabin, index }: CabinCardProps) {
+  const t = useTranslations("CabinCard");
+  const td = useTranslations("Data");
+  const locale = useLocale();
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [currentImage, setCurrentImage] = useState(0);
+
+  const cabinName = td(`cabins.${cabin.id}.name`);
+  const cabinDescription = td(`cabins.${cabin.id}.shortDescription`);
 
   const placeholderImages = [
     `/cabana1-1.jpg`,
@@ -47,7 +53,7 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
       <div className="relative h-72 overflow-hidden">
         <img
           src={image}
-          alt={`${cabin.name} - Cabaña con piscina cerca de Madrid`}
+          alt={cabinName}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           onLoad={() => setImageLoaded(true)}
         />
@@ -55,15 +61,15 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full">
           <span className="text-primary font-bold text-sm">
             {cabin.pricePerNight}€
-            <span className="text-text-muted font-normal text-xs">/noche</span>
+            <span className="text-text-muted font-normal text-xs">{t("perNight")}</span>
           </span>
         </div>
         <div className="absolute bottom-4 left-4 flex gap-2">
           <span className="bg-primary/90 text-white text-xs px-3 py-1 rounded-full font-medium">
-            {cabin.capacity} huéspedes
+            {cabin.capacity} {t("guests")}
           </span>
           <span className="bg-white/90 text-text-dark text-xs px-3 py-1 rounded-full font-medium">
-            {cabin.bedrooms} hab. · {cabin.bathrooms} baño
+            {cabin.bedrooms} {t("rooms")} · {cabin.bathrooms} {t("bathroom")}
           </span>
         </div>
       </div>
@@ -71,10 +77,10 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
       {/* Content */}
       <div className="p-6">
         <h3 className="font-display text-2xl font-bold text-text-dark mb-2">
-          {cabin.name}
+          {cabinName}
         </h3>
         <p className="text-text-muted leading-relaxed mb-4">
-          {cabin.shortDescription}
+          {cabinDescription}
         </p>
 
         {/* Features */}
@@ -85,21 +91,21 @@ export default function CabinCard({ cabin, index }: CabinCardProps) {
               className="bg-beige text-secondary text-xs px-3 py-1.5 rounded-full font-medium flex items-center gap-1"
             >
               <span>{featureIcon[feature] || "✓"}</span>
-              {feature}
+              {td.has(`features.${feature}`) ? td(`features.${feature}`) : feature}
             </span>
           ))}
           {cabin.features.length > 4 && (
             <span className="bg-beige text-secondary text-xs px-3 py-1.5 rounded-full font-medium">
-              +{cabin.features.length - 4} más
+              +{cabin.features.length - 4} {t("more")}
             </span>
           )}
         </div>
 
         <a
-           href={`/alojamientos/${cabin.slug}`}
+           href={`/${locale}/alojamientos/${cabin.slug}`}
            className="block w-full text-center bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
          >
-           Ver Detalles
+           {t("viewDetails")}
          </a>
       </div>
     </div>

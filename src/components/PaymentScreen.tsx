@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useTranslations, useLocale } from "next-intl";
 
 interface PaymentScreenProps {
   cabinId: string;
@@ -28,6 +29,8 @@ function PayPalButtonWrapper({
   onError: (msg: string) => void;
 }) {
   const reservationIdRef = useRef<string>("");
+  const t = useTranslations("Payment");
+  const locale = useLocale();
 
   return (
     <PayPalButtons
@@ -40,7 +43,7 @@ function PayPalButtonWrapper({
         });
         const data = await res.json();
         if (!res.ok || data.error) {
-          onError(data.error || "Error creando orden de PayPal");
+          onError(data.error || t("errorPaypal"));
           throw new Error(data.error);
         }
         reservationIdRef.current = data.reservationId;
@@ -58,13 +61,13 @@ function PayPalButtonWrapper({
         const result = await res.json();
         if (result.success) {
           onSuccess();
-          window.location.href = "/reserva/exito";
+          window.location.href = `/${locale}/reserva/exito`;
         } else {
-          onError("Error al procesar el pago con PayPal");
+          onError(t("errorProcessing"));
         }
       }}
       onCancel={() => {
-        onError("Pago cancelado por el usuario.");
+        onError(t("cancelled"));
       }}
     />
   );
@@ -86,6 +89,8 @@ export default function PaymentScreen({
 }: PaymentScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const t = useTranslations("Payment");
+  const locale = useLocale();
 
   const bookingData = {
     cabinId,
@@ -110,7 +115,7 @@ export default function PaymentScreen({
       });
       const availData = await availRes.json();
       if (!availData.available) {
-        setError("Las fechas seleccionadas ya no están disponibles.");
+        setError(t("datesUnavailable"));
         setLoading(false);
         return;
       }
@@ -122,13 +127,13 @@ export default function PaymentScreen({
       });
       const data = await res.json();
       if (data.reservationId) {
-        window.location.href = `/reserva/bizum?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
+        window.location.href = `/${locale}/reserva/bizum?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
       } else {
-        setError(data.error || "Error al crear la reserva");
+        setError(data.error || t("errorCreating"));
         setLoading(false);
       }
     } catch {
-      setError("Error de conexión. Inténtalo de nuevo.");
+      setError(t("connectionError"));
       setLoading(false);
     }
   };
@@ -144,7 +149,7 @@ export default function PaymentScreen({
       });
       const availData = await availRes.json();
       if (!availData.available) {
-        setError("Las fechas seleccionadas ya no están disponibles.");
+        setError(t("datesUnavailable"));
         setLoading(false);
         return;
       }
@@ -156,13 +161,13 @@ export default function PaymentScreen({
       });
       const data = await res.json();
       if (data.reservationId) {
-        window.location.href = `/reserva/transferencia?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
+        window.location.href = `/${locale}/reserva/transferencia?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
       } else {
-        setError(data.error || "Error al crear la reserva");
+        setError(data.error || t("errorCreating"));
         setLoading(false);
       }
     } catch {
-      setError("Error de conexión. Inténtalo de nuevo.");
+      setError(t("connectionError"));
       setLoading(false);
     }
   };
@@ -175,29 +180,29 @@ export default function PaymentScreen({
         onClick={onBack}
         className="text-primary hover:text-primary-light font-medium text-sm mb-6 flex items-center gap-1"
       >
-        ← Volver
+        {t("back")}
       </button>
 
       <h3 className="font-display text-2xl font-bold text-text-dark mb-2">
-        Selecciona método de pago
+        {t("selectMethod")}
       </h3>
 
       {/* Booking Summary */}
       <div className="bg-beige/50 rounded-xl p-4 mb-6">
         <p className="font-semibold text-text-dark">{cabinName}</p>
         <p className="text-text-muted text-sm mt-1">
-          {new Date(checkIn + "T12:00:00").toLocaleDateString("es-ES", {
+          {new Date(checkIn + "T12:00:00").toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
             weekday: "short",
             day: "numeric",
             month: "short",
           })}{" "}
           →{" "}
-          {new Date(checkOut + "T12:00:00").toLocaleDateString("es-ES", {
+          {new Date(checkOut + "T12:00:00").toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
             weekday: "short",
             day: "numeric",
             month: "short",
           })}{" "}
-          · {nights} noches · {guests} huéspedes
+          · {nights} {t("nightsLabel")} · {guests} {t("guestsLabel")}
         </p>
         <p className="text-primary font-bold text-xl mt-2">{totalPrice}€</p>
       </div>
@@ -213,7 +218,7 @@ export default function PaymentScreen({
         {paypalClientId && (
           <div className="border border-beige-dark rounded-xl p-4">
             <p className="text-text-muted text-sm mb-3 text-center font-medium">
-              Pagar con PayPal
+              {t("payWithPaypal")}
             </p>
             <PayPalButtonWrapper
               bookingData={bookingData}
@@ -229,7 +234,7 @@ export default function PaymentScreen({
           disabled={loading}
           className="w-full py-4 rounded-xl font-bold text-lg border-2 border-primary text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
         >
-          📱 Pagar con Bizum
+          {t("payWithBizum")}
         </button>
 
         {/* Transfer */}
@@ -238,13 +243,12 @@ export default function PaymentScreen({
           disabled={loading}
           className="w-full py-4 rounded-xl font-bold text-lg border-2 border-primary text-primary hover:bg-primary/5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
         >
-          🏦 Pagar por Transferencia
+          {t("payWithTransfer")}
         </button>
       </div>
 
       <p className="text-center text-text-muted text-xs mt-6">
-        Tus datos de pago están protegidos. Cancelación gratuita hasta 48h
-        antes.
+        {t("dataProtected")}
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface DescriptionModalProps {
   title: string;
@@ -11,6 +12,7 @@ export default function DescriptionModal({
   title,
   description,
 }: DescriptionModalProps) {
+  const t = useTranslations("PropertyPage");
   const [isOpen, setIsOpen] = useState(false);
 
   // Mostrar solo las primeras dos líneas
@@ -26,7 +28,7 @@ export default function DescriptionModal({
           onClick={() => setIsOpen(true)}
           className="text-primary hover:text-primary-light font-semibold transition-colors"
         >
-          Leer más
+          {t("readMore")}
         </button>
       </div>
 
@@ -59,7 +61,7 @@ export default function DescriptionModal({
               onClick={() => setIsOpen(false)}
               className="mt-8 w-full bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300"
             >
-              Cerrar
+              {t("close")}
             </button>
           </div>
         </div>

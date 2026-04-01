@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { cabins, pool, type Cabin } from "@/lib/data";
 import SectionHeader from "./SectionHeader";
 import PaymentScreen from "./PaymentScreen";
+import { useTranslations, useLocale } from "next-intl";
 
 interface BookingState {
   cabinId: string;
@@ -53,12 +54,6 @@ function generateDatesBetween(checkIn: string, checkOut: string): Date[] {
   return dates;
 }
 
-const WEEKDAYS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
-const MONTHS = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
-];
-
 function MiniCalendar({
   year,
   month,
@@ -67,6 +62,8 @@ function MiniCalendar({
   endDate,
   onDateClick,
   bookedDates,
+  weekdays,
+  months,
 }: {
   year: number;
   month: number;
@@ -75,6 +72,8 @@ function MiniCalendar({
   endDate: Date | null;
   onDateClick: (date: Date) => void;
   bookedDates: Date[];
+  weekdays: string[];
+  months: string[];
 }) {
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
@@ -99,7 +98,7 @@ function MiniCalendar({
           ‹
         </button>
         <h4 className="font-display text-lg font-semibold text-text-dark">
-          {MONTHS[month]} {year}
+          {months[month]} {year}
         </h4>
         <button
           onClick={() => onMonthChange(1)}
@@ -110,7 +109,7 @@ function MiniCalendar({
       </div>
 
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {WEEKDAYS.map((d) => (
+        {weekdays.map((d) => (
           <div
             key={d}
             className="text-center text-xs font-medium text-text-muted py-2"
@@ -168,6 +167,9 @@ export default function BookingCalendar({
   initialProperty,
 }: BookingCalendarProps) {
   const initialCabinId = initialProperty?.id || cabins[0].id;
+  const t = useTranslations("Booking");
+  const td = useTranslations("Data");
+  const locale = useLocale();
 
   const [booking, setBooking] = useState<BookingState>({
     cabinId: initialCabinId,
@@ -209,6 +211,13 @@ export default function BookingCalendar({
   const selectedCabin = booking.cabinId === "piscina"
     ? { name: pool.name, shortDescription: pool.description, pricePerNight: 0, capacity: 999 } as any
     : cabins.find((c) => c.id === booking.cabinId)!;
+
+  const selectedCabinName = booking.cabinId === "piscina"
+    ? td("pool.name")
+    : td(`cabins.${booking.cabinId}.name`);
+  const selectedCabinDescription = booking.cabinId === "piscina"
+    ? td("pool.description")
+    : td(`cabins.${booking.cabinId}.shortDescription`);
 
   const handleMonthChange = (dir: number) => {
     let newMonth = calendarMonth + dir;
@@ -303,10 +312,10 @@ export default function BookingCalendar({
     const phoneRegex = /^[+]?[\d\s()-]{7,}$/;
 
     if (!emailRegex.test(booking.email)) {
-      errors.email = "Introduce un email válido";
+      errors.email = t("validEmail");
     }
     if (!phoneRegex.test(booking.phone)) {
-      errors.phone = "Introduce un teléfono válido (mín. 7 dígitos)";
+      errors.phone = t("validPhone");
     }
 
     setFormErrors(errors);
@@ -344,19 +353,19 @@ export default function BookingCalendar({
           <div className="bg-white rounded-3xl p-12 shadow-2xl">
             <div className="text-6xl mb-6">✅</div>
             <h3 className="font-display text-3xl font-bold text-text-dark mb-4">
-              ¡Reserva Confirmada!
+              {t("confirmed")}
             </h3>
             <p className="text-text-muted text-lg mb-2">
-              Hemos recibido tu solicitud para{" "}
-              <strong>{selectedCabin.name}</strong>
+              {t("confirmedMessage")}{" "}
+              <strong>{selectedCabinName}</strong>
             </p>
             <p className="text-text-muted">
-              {booking.startDate?.toLocaleDateString("es-ES")} →{" "}
-              {booking.endDate?.toLocaleDateString("es-ES")} · {nights} noches ·{" "}
+              {booking.startDate?.toLocaleDateString(locale === "es" ? "es-ES" : "en-US")} →{" "}
+              {booking.endDate?.toLocaleDateString(locale === "es" ? "es-ES" : "en-US")} · {nights} {t("nights")} ·{" "}
               <strong>{totalPrice}€</strong>
             </p>
             <p className="text-primary font-medium mt-4">
-              Te enviaremos un email de confirmación en breve.
+              {t("confirmationEmail")}
             </p>
           </div>
         </div>
@@ -368,9 +377,9 @@ export default function BookingCalendar({
     <section id="reservas" className="py-24 px-4 bg-primary-dark">
       <div className="max-w-6xl mx-auto">
         <SectionHeader
-          subtitle="Reserva tu escapada"
-          title="Calendario de Disponibilidad"
-          description="Selecciona tu cabaña, elige las fechas y disfruta."
+          subtitle={t("subtitle")}
+          title={t("title")}
+          description={t("description")}
           light
         />
 
@@ -395,7 +404,7 @@ export default function BookingCalendar({
                     : "bg-white/10 text-white/70 hover:bg-white/20"
                 }`}
               >
-                {cabin.name}
+                {td(`cabins.${cabin.id}.name`)}
               </button>
             ))}
             <button
@@ -414,7 +423,7 @@ export default function BookingCalendar({
                   : "bg-white/10 text-white/70 hover:bg-white/20"
               }`}
             >
-              {pool.name}
+              {td("pool.name")}
             </button>
           </div>
         )}
@@ -423,7 +432,7 @@ export default function BookingCalendar({
           {step === "payment" ? (
             <PaymentScreen
               cabinId={booking.cabinId}
-              cabinName={selectedCabin.name}
+              cabinName={selectedCabinName}
               checkIn={formatDateISO(booking.startDate!)}
               checkOut={formatDateISO(booking.endDate!)}
               nights={nights}
@@ -440,7 +449,7 @@ export default function BookingCalendar({
               {/* Calendar */}
               <div className="p-6 sm:p-8">
                 <h3 className="font-display text-xl font-semibold text-text-dark mb-6">
-                  Selecciona tus fechas
+                  {t("selectDates")}
                 </h3>
                 <MiniCalendar
                   year={calendarYear}
@@ -450,19 +459,21 @@ export default function BookingCalendar({
                   endDate={booking.endDate}
                   onDateClick={handleDateClick}
                   bookedDates={bookedDates}
+                  weekdays={t.raw("weekdays")}
+                  months={t.raw("months")}
                 />
                 <div className="flex gap-4 mt-4 text-xs text-text-muted">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 bg-primary rounded" /> Seleccionado
+                    <span className="w-3 h-3 bg-primary rounded" /> {t("selected")}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 bg-primary/15 rounded" /> Rango
+                    <span className="w-3 h-3 bg-primary/15 rounded" /> {t("range")}
                   </span>
                   <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 bg-red-100 rounded relative">
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 bg-red-400 rounded-full" />
                     </span>{" "}
-                    Reservado
+                    {t("booked")}
                   </span>
                 </div>
               </div>
@@ -471,41 +482,41 @@ export default function BookingCalendar({
               <div className="p-6 sm:p-8 bg-beige/50 flex flex-col justify-between">
                 <div>
                   <h3 className="font-display text-xl font-semibold text-text-dark mb-2">
-                    {selectedCabin.name}
+                    {selectedCabinName}
                   </h3>
                   <p className="text-text-muted text-sm mb-6">
-                    {selectedCabin.shortDescription}
+                    {selectedCabinDescription}
                   </p>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
-                      <span className="text-text-muted">Entrada</span>
+                      <span className="text-text-muted">{t("checkIn")}</span>
                       <span className="font-medium text-text-dark">
                         {booking.startDate
-                          ? booking.startDate.toLocaleDateString("es-ES", {
+                          ? booking.startDate.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
                               weekday: "short",
                               day: "numeric",
                               month: "short",
                             })
-                          : "Selecciona fecha"}
+                          : t("selectDate")}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-text-muted">Salida</span>
+                      <span className="text-text-muted">{t("checkOut")}</span>
                       <span className="font-medium text-text-dark">
                         {booking.endDate
-                          ? booking.endDate.toLocaleDateString("es-ES", {
+                          ? booking.endDate.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
                               weekday: "short",
                               day: "numeric",
                               month: "short",
                             })
-                          : "Selecciona fecha"}
+                          : t("selectDate")}
                       </span>
                     </div>
 
                     {/* Guests */}
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-text-muted">Huéspedes</span>
+                      <span className="text-text-muted">{t("guests")}</span>
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() =>
@@ -543,30 +554,30 @@ export default function BookingCalendar({
                     <div className="border-t border-beige-dark pt-4 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-text-muted">
-                          Alojamiento × {nights} noches
+                          {t("accommodation")} × {nights} {t("nights")}
                         </span>
                         <span className="font-medium">{priceBreakdown.base}€</span>
                       </div>
                       {priceBreakdown.extraGuests > 0 && (
                         <div className="flex justify-between text-sm">
                           <span className="text-text-muted">
-                            {booking.guests - 2} pers. extra × {selectedCabin.extraGuestPrice}€/día × {nights} noches
+                            {booking.guests - 2} {t("extraPersons")} × {selectedCabin.extraGuestPrice}{t("perDay")} × {nights} {t("nights")}
                           </span>
                           <span className="font-medium">{priceBreakdown.extraGuests}€</span>
                         </div>
                       )}
                       {priceBreakdown.discount > 0 && (
                         <div className="flex justify-between text-sm text-green-600">
-                          <span>Dto. semanal (-{selectedCabin.weeklyDiscount}%)</span>
+                          <span>{t("weeklyDiscount")} (-{selectedCabin.weeklyDiscount}%)</span>
                           <span className="font-medium">-{priceBreakdown.discount}€</span>
                         </div>
                       )}
                       <div className="flex justify-between text-sm">
-                        <span className="text-text-muted">Limpieza</span>
+                        <span className="text-text-muted">{t("cleaning")}</span>
                         <span className="font-medium">{priceBreakdown.cleaning}€</span>
                       </div>
                       <div className="flex justify-between text-lg font-bold text-primary border-t border-beige-dark pt-2">
-                        <span>Total</span>
+                        <span>{t("total")}</span>
                         <span>{totalPrice}€</span>
                       </div>
                     </div>
@@ -582,7 +593,7 @@ export default function BookingCalendar({
                       : "bg-beige-dark text-text-muted cursor-not-allowed"
                   }`}
                 >
-                  Continuar Reserva
+                  {t("continueBooking")}
                 </button>
               </div>
             </div>
@@ -593,23 +604,23 @@ export default function BookingCalendar({
                 onClick={() => setStep("dates")}
                 className="text-primary hover:text-primary-light font-medium text-sm mb-6 flex items-center gap-1"
               >
-                ← Cambiar fechas
+                {t("changeDates")}
               </button>
 
               <h3 className="font-display text-2xl font-bold text-text-dark mb-2">
-                Completa tu Reserva
+                {t("completeBooking")}
               </h3>
               <p className="text-text-muted text-sm mb-6">
-                {selectedCabin.name} ·{" "}
-                {booking.startDate?.toLocaleDateString("es-ES")} →{" "}
-                {booking.endDate?.toLocaleDateString("es-ES")} · {nights} noches
+                {selectedCabinName} ·{" "}
+                {booking.startDate?.toLocaleDateString(locale === "es" ? "es-ES" : "en-US")} →{" "}
+                {booking.endDate?.toLocaleDateString(locale === "es" ? "es-ES" : "en-US")} · {nights} {t("nights")}
                 · <strong>{totalPrice}€</strong>
               </p>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-text-dark mb-1.5">
-                    Nombre completo
+                    {t("fullName")}
                   </label>
                   <input
                     type="text"
@@ -617,13 +628,13 @@ export default function BookingCalendar({
                     onChange={(e) =>
                       setBooking({ ...booking, name: e.target.value })
                     }
-                    placeholder="Tu nombre"
+                    placeholder={t("namePlaceholder")}
                     className="w-full px-4 py-3 border border-beige-dark rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-dark mb-1.5">
-                    Email
+                    {t("email")}
                   </label>
                   <input
                     type="email"
@@ -643,7 +654,7 @@ export default function BookingCalendar({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-dark mb-1.5">
-                    Teléfono
+                    {t("phone")}
                   </label>
                   <input
                     type="tel"
@@ -672,12 +683,11 @@ export default function BookingCalendar({
                     : "bg-beige-dark text-text-muted cursor-not-allowed"
                 }`}
               >
-                Ir al Pago · {totalPrice}€
+                {t("goToPayment")} · {totalPrice}€
               </button>
 
               <p className="text-center text-text-muted text-xs mt-4">
-                Recibirás un email de confirmación. Cancelación gratuita hasta
-                48h antes.
+                {t("confirmationNote")}
               </p>
             </div>
           )}
