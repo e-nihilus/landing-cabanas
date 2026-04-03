@@ -240,6 +240,12 @@ export default function BookingCalendar({
       if (date < booking.startDate) {
         setBooking({ ...booking, startDate: date, endDate: null });
       } else {
+        const diffNights = Math.ceil(
+          (date.getTime() - booking.startDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        if (diffNights < 2) {
+          return;
+        }
         const hasBookedInRange = bookedDates.some(
           (b) => b > booking.startDate! && b < date
         );
@@ -407,24 +413,6 @@ export default function BookingCalendar({
                 {td(`cabins.${cabin.id}.name`)}
               </button>
             ))}
-            <button
-              onClick={() => {
-                setBooking({
-                  ...booking,
-                  cabinId: "piscina",
-                  startDate: null,
-                  endDate: null,
-                });
-                setStep("dates");
-              }}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                booking.cabinId === "piscina"
-                  ? "bg-accent text-primary-dark shadow-lg"
-                  : "bg-white/10 text-white/70 hover:bg-white/20"
-              }`}
-            >
-              {td("pool.name")}
-            </button>
           </div>
         )}
 
