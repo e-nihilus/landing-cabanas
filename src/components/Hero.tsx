@@ -36,7 +36,7 @@ export default function Hero() {
           {t("subtitle")}
         </p>
         <h1
-          className={`font-display text-6xl sm:text-7xl lg:text-8xl text-white font-bold leading-tight mb-6 transition-all duration-1000 delay-500 ${
+          className={`font-display text-[2.75rem] sm:text-7xl lg:text-8xl text-white font-bold leading-tight mb-6 transition-all duration-1000 delay-500 ${
             loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -58,7 +58,7 @@ export default function Hero() {
         >
           <a
             href="#reservas"
-            className="bg-primary hover:bg-primary-light text-white px-8 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:shadow-2xl hover:scale-105 inline-flex items-center justify-center gap-2"
+            className="bg-primary hover:bg-primary-light text-white px-6 sm:px-8 py-4 rounded-full text-base sm:text-lg font-semibold transition-all duration-300 hover:shadow-2xl hover:scale-105 inline-flex items-center justify-center gap-2 max-w-full"
           >
             {t("bookNow")}
             <svg
