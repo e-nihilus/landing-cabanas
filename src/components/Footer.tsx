@@ -18,7 +18,7 @@ export default function Footer() {
             {t("ctaDescription")}
           </p>
           <a
-            href="#reservas"
+            href={`/${locale}/#reservas`}
             className="inline-flex items-center gap-2 bg-accent hover:bg-accent/90 text-primary-dark px-8 py-4 rounded-full text-lg font-bold transition-all duration-300 hover:shadow-2xl hover:scale-105"
           >
             {t("bookNow")}

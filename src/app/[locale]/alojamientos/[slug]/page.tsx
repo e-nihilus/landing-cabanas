@@ -220,9 +220,17 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                   )}
 
                   {type === "pool" && (
-                    <p className="text-text-muted text-sm leading-relaxed">
-                      {t("poolNote")}
-                    </p>
+                    <>
+                      <p className="text-text-muted text-sm leading-relaxed mb-6">
+                        {t("poolNote")}
+                      </p>
+                      <a
+                        href={`/${locale}/#reservas`}
+                        className="block w-full text-center bg-primary hover:bg-primary-light text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg"
+                      >
+                        {t("bookNow")}
+                      </a>
+                    </>
                   )}
                 </div>
               </div>

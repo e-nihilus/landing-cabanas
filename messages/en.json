@@ -142,7 +142,7 @@
     "viewAllImages": "View all images",
     "prices": "Prices",
     "perNight": "per night",
-    "weekendPrice": "Weekend price:",
+    "weekendPrice": "Price per night on weekends:",
     "weeklyDiscount": "Weekly discount:",
     "availability": "Availability",
     "staysRange": "Stays from {min} to {max} nights",
