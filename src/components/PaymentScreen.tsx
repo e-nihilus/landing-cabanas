@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 
 interface PaymentScreenProps {
@@ -17,60 +16,6 @@ interface PaymentScreenProps {
   phone: string;
   onBack: () => void;
   onSuccess: () => void;
-}
-
-function PayPalButtonWrapper({
-  bookingData,
-  onSuccess,
-  onError,
-}: {
-  bookingData: Record<string, any>;
-  onSuccess: () => void;
-  onError: (msg: string) => void;
-}) {
-  const reservationIdRef = useRef<string>("");
-  const t = useTranslations("Payment");
-  const locale = useLocale();
-
-  return (
-    <PayPalButtons
-      style={{ layout: "horizontal", tagline: false }}
-      createOrder={async () => {
-        const res = await fetch("/api/paypal/create-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bookingData),
-        });
-        const data = await res.json();
-        if (!res.ok || data.error) {
-          onError(data.error || t("errorPaypal"));
-          throw new Error(data.error);
-        }
-        reservationIdRef.current = data.reservationId;
-        return data.orderId;
-      }}
-      onApprove={async (data) => {
-        const res = await fetch("/api/paypal/capture-order", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: data.orderID,
-            reservationId: reservationIdRef.current,
-          }),
-        });
-        const result = await res.json();
-        if (result.success) {
-          onSuccess();
-          window.location.href = `/${locale}/reserva/exito`;
-        } else {
-          onError(t("errorProcessing"));
-        }
-      }}
-      onCancel={() => {
-        onError(t("cancelled"));
-      }}
-    />
-  );
 }
 
 export default function PaymentScreen({
@@ -172,9 +117,7 @@ export default function PaymentScreen({
     }
   };
 
-  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-
-  const content = (
+  return (
     <div className="p-6 sm:p-10 max-w-lg mx-auto">
       <button
         onClick={onBack}
@@ -214,20 +157,6 @@ export default function PaymentScreen({
       )}
 
       <div className="space-y-4">
-        {/* PayPal */}
-        {paypalClientId && (
-          <div className="border border-beige-dark rounded-xl p-4">
-            <p className="text-text-muted text-sm mb-3 text-center font-medium">
-              {t("payWithPaypal")}
-            </p>
-            <PayPalButtonWrapper
-              bookingData={bookingData}
-              onSuccess={onSuccess}
-              onError={(msg) => setError(msg)}
-            />
-          </div>
-        )}
-
         {/* Bizum */}
         <button
           onClick={handleBizum}
@@ -252,21 +181,4 @@ export default function PaymentScreen({
       </p>
     </div>
   );
-
-  if (paypalClientId) {
-    return (
-      <PayPalScriptProvider
-        options={{
-          clientId: paypalClientId,
-          currency: "EUR",
-          intent: "capture",
-        }}
-        deferLoading={false}
-      >
-        {content}
-      </PayPalScriptProvider>
-    );
-  }
-
-  return content;
 }
