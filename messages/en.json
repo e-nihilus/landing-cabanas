@@ -65,15 +65,13 @@
     "completeBooking": "Complete your Booking",
     "fullName": "Full name",
     "namePlaceholder": "Your name",
-    "email": "Email",
     "phone": "Phone",
     "goToPayment": "Go to Payment",
-    "confirmationNote": "You will receive a confirmation email. Free cancellation up to 48h before.",
-    "validEmail": "Enter a valid email",
+    "confirmationNote": "Free cancellation up to 48h before.",
     "validPhone": "Enter a valid phone number (min. 7 digits)",
     "confirmed": "Booking Confirmed!",
     "confirmedMessage": "We have received your request for",
-    "confirmationEmail": "We will send you a confirmation email shortly.",
+    "confirmationEmail": "We will contact you by phone to confirm your booking.",
     "weekdays": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   },
@@ -168,7 +166,7 @@
   },
   "SuccessPage": {
     "title": "Booking Confirmed!",
-    "description": "Your payment has been processed successfully. We have received your booking and will send you a confirmation email shortly.",
+    "description": "Your payment has been processed successfully. We have received your booking and will contact you by phone to confirm it.",
     "backHome": "Back to Home",
     "cancellation": "Free cancellation up to 48h before arrival."
   },

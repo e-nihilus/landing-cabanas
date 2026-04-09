@@ -1,7 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-// Cliente con service role key para uso exclusivo en el backend (API routes)
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Cliente anon: para lecturas públicas y login desde el cliente
+export const supabaseAnon = createClient(supabaseUrl, supabaseAnonKey);
+
+// Cliente autenticado: para operaciones admin con JWT del usuario
+export function createSupabaseAuth(accessToken: string) {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  });
+}

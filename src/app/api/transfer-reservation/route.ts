@@ -5,9 +5,9 @@ import { checkAvailability, createReservation } from "@/lib/db";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { cabinId, checkIn, checkOut, nights, guests, totalPrice, name, email, phone } = body;
+    const { cabinId, checkIn, checkOut, nights, guests, totalPrice, name, phone } = body;
 
-    if (!cabinId || !checkIn || !checkOut || !totalPrice || !name || !email || !phone) {
+    if (!cabinId || !checkIn || !checkOut || !totalPrice || !name || !phone) {
       return NextResponse.json({ error: "Faltan datos obligatorios" }, { status: 400 });
     }
 
@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
       status: "awaiting_transfer",
       paymentMethod: "transfer",
       name,
-      email,
       phone,
     });
 

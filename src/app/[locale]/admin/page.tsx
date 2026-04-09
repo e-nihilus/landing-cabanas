@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { supabaseAnon } from "@/lib/supabase";
 
 interface Reservation {
   id: string;
@@ -13,7 +14,6 @@ interface Reservation {
   status: string;
   paymentMethod?: string;
   name: string;
-  email: string;
   phone: string;
   createdAt: string;
 }
@@ -65,7 +65,7 @@ function generateDatesBetween(checkIn: string, checkOut: string): Date[] {
 }
 
 // ─── Calendar Management Component ───────────────────────────────
-function CalendarManager({ password }: { password: string }) {
+function CalendarManager({ accessToken }: { accessToken: string }) {
   const [selectedCalendar, setSelectedCalendar] = useState(CALENDARS[0].id);
   const [calendarReservations, setCalendarReservations] = useState<Reservation[]>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
@@ -83,7 +83,7 @@ function CalendarManager({ password }: { password: string }) {
     setCalendarError("");
     try {
       const res = await fetch(`/api/admin/calendar?cabinId=${cabinId}`, {
-        headers: { "x-admin-password": password },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -93,12 +93,12 @@ function CalendarManager({ password }: { password: string }) {
       setCalendarError("Error cargando calendario");
     }
     setCalendarLoading(false);
-  }, [password]);
+  }, [accessToken]);
 
   const fetchCustomPrices = useCallback(async (cabinId: string) => {
     try {
       const res = await fetch(`/api/admin/prices?cabinId=${cabinId}`, {
-        headers: { "x-admin-password": password },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.ok) {
         const data = await res.json();
@@ -107,7 +107,7 @@ function CalendarManager({ password }: { password: string }) {
     } catch {
       // silently fail
     }
-  }, [password]);
+  }, [accessToken]);
 
   const handleCalendarChange = (cabinId: string) => {
     setSelectedCalendar(cabinId);
@@ -165,7 +165,7 @@ function CalendarManager({ password }: { password: string }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           cabinId: selectedCalendar,
@@ -192,7 +192,7 @@ function CalendarManager({ password }: { password: string }) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ id, type: isAdmin ? "admin" : "reservation" }),
       });
@@ -220,7 +220,7 @@ function CalendarManager({ password }: { password: string }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           cabinId: selectedCalendar,
@@ -247,7 +247,7 @@ function CalendarManager({ password }: { password: string }) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ cabinId: selectedCalendar, date }),
       });
@@ -532,9 +532,9 @@ function CalendarManager({ password }: { password: string }) {
                       <p className="text-xs text-gray-500">
                         {new Date(r.checkIn).toLocaleDateString("es-ES")} → {new Date(r.checkOut).toLocaleDateString("es-ES")} · {r.nights} noches · {r.totalPrice}€
                       </p>
-                      {(r.email || r.phone) && (
+                      {r.phone && (
                         <p className="text-xs text-gray-400">
-                          {r.email}{r.email && r.phone && " · "}{r.phone && `📞 ${r.phone}`}
+                          📞 {r.phone}
                         </p>
                       )}
                     </div>
@@ -564,7 +564,9 @@ function CalendarManager({ password }: { password: string }) {
 
 // ─── Main Admin Page ─────────────────────────────────────────────
 export default function AdminPage() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [accessToken, setAccessToken] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(false);
@@ -572,15 +574,15 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AdminTab>("transfers");
 
-  const fetchReservations = useCallback(async (pwd: string) => {
+  const fetchReservations = useCallback(async (token: string) => {
     setLoading(true);
     setError("");
     try {
       const res = await fetch("/api/admin/reservations", {
-        headers: { "x-admin-password": pwd },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
-        setError("Contraseña incorrecta");
+        setError("Credenciales incorrectas o no eres admin");
         setAuthenticated(false);
         setLoading(false);
         return;
@@ -594,9 +596,25 @@ export default function AdminPage() {
     setLoading(false);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    fetchReservations(password);
+    setLoading(true);
+    setError("");
+
+    const { data, error: authError } = await supabaseAnon.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError || !data.session) {
+      setError("Email o contraseña incorrectos");
+      setLoading(false);
+      return;
+    }
+
+    const token = data.session.access_token;
+    setAccessToken(token);
+    fetchReservations(token);
   };
 
   const handleAction = async (id: string, action: "confirm" | "cancel") => {
@@ -606,12 +624,12 @@ export default function AdminPage() {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ id, action }),
       });
       if (res.ok) {
-        fetchReservations(password);
+        fetchReservations(accessToken);
       }
     } catch {
       setError("Error al actualizar");
@@ -643,6 +661,13 @@ export default function AdminPage() {
           {error && (
             <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
           )}
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <input
             type="password"
             value={password}
@@ -697,7 +722,7 @@ export default function AdminPage() {
         </div>
 
         {activeTab === "calendar" ? (
-          <CalendarManager password={password} />
+          <CalendarManager accessToken={accessToken} />
         ) : (
           <div>
             <div className="flex items-center justify-between mb-6">
@@ -705,7 +730,7 @@ export default function AdminPage() {
                 Reservas por Transferencia / Bizum
               </h2>
               <button
-                onClick={() => fetchReservations(password)}
+                onClick={() => fetchReservations(accessToken)}
                 className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors text-sm"
               >
                 ↻ Actualizar
@@ -745,7 +770,7 @@ export default function AdminPage() {
                           {r.nights} noches · {r.guests} huéspedes
                         </p>
                         <p className="text-gray-600 text-sm mt-1">
-                          📧 {r.email} · 📞 {r.phone}
+                          📞 {r.phone}
                         </p>
                         <p className="text-blue-600 font-bold text-lg mt-1">
                           {r.totalPrice}€
@@ -805,9 +830,9 @@ export default function AdminPage() {
                           {new Date(r.checkOut).toLocaleDateString("es-ES")} ·{" "}
                           {r.nights} noches · {r.totalPrice}€
                         </p>
-                        {(r.email || r.phone) && (
+                        {r.phone && (
                           <p className="text-gray-400 text-sm mt-1">
-                            {r.email && <>📧 {r.email}</>}{r.email && r.phone && " · "}{r.phone && <>📞 {r.phone}</>}
+                            📞 {r.phone}
                           </p>
                         )}
                       </div>

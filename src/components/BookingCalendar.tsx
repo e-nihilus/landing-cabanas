@@ -13,7 +13,6 @@ interface BookingState {
   guests: number;
   pets: number;
   name: string;
-  email: string;
   phone: string;
 }
 
@@ -179,7 +178,6 @@ export default function BookingCalendar({
     guests: 2,
     pets: 0,
     name: "",
-    email: "",
     phone: "",
   });
 
@@ -189,7 +187,7 @@ export default function BookingCalendar({
   const [step, setStep] = useState<"dates" | "details" | "payment">("dates");
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
   const [customPrices, setCustomPrices] = useState<{ date: string; price: number }[]>([]);
-  const [formErrors, setFormErrors] = useState<{ email?: string; phone?: string }>({});
+  const [formErrors, setFormErrors] = useState<{ phone?: string }>({});
 
   // Fetch booked dates from backend
   const fetchBookedDates = useCallback(async (cabinId: string) => {
@@ -324,13 +322,9 @@ export default function BookingCalendar({
   };
 
   const validateForm = (): boolean => {
-    const errors: { email?: string; phone?: string } = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const errors: { phone?: string } = {};
     const phoneRegex = /^[+]?[\d\s()-]{7,}$/;
 
-    if (!emailRegex.test(booking.email)) {
-      errors.email = t("validEmail");
-    }
     if (!phoneRegex.test(booking.phone)) {
       errors.phone = t("validPhone");
     }
@@ -358,7 +352,6 @@ export default function BookingCalendar({
         guests: 2,
         pets: 0,
         name: "",
-        email: "",
         phone: "",
       });
     }, 4000);
@@ -440,7 +433,6 @@ export default function BookingCalendar({
               pets={booking.pets}
               totalPrice={totalPrice}
               name={booking.name}
-              email={booking.email}
               phone={booking.phone}
               onBack={() => setStep("details")}
               onSuccess={handlePaymentSuccess}
@@ -675,26 +667,6 @@ export default function BookingCalendar({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-text-dark mb-1.5">
-                    {t("email")}
-                  </label>
-                  <input
-                    type="email"
-                    value={booking.email}
-                    onChange={(e) => {
-                      setBooking({ ...booking, email: e.target.value });
-                      if (formErrors.email) setFormErrors({ ...formErrors, email: undefined });
-                    }}
-                    placeholder="tu@email.com"
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all ${
-                      formErrors.email ? "border-red-400" : "border-beige-dark"
-                    }`}
-                  />
-                  {formErrors.email && (
-                    <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-dark mb-1.5">
                     {t("phone")}
                   </label>
                   <input
@@ -717,9 +689,9 @@ export default function BookingCalendar({
 
               <button
                 onClick={handleGoToPayment}
-                disabled={!booking.name || !booking.email || !booking.phone}
+                disabled={!booking.name || !booking.phone}
                 className={`w-full mt-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
-                  booking.name && booking.email && booking.phone
+                  booking.name && booking.phone
                     ? "bg-primary text-white hover:bg-primary-light hover:shadow-xl"
                     : "bg-beige-dark text-text-muted cursor-not-allowed"
                 }`}

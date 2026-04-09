@@ -65,15 +65,13 @@
     "completeBooking": "Completa tu Reserva",
     "fullName": "Nombre completo",
     "namePlaceholder": "Tu nombre",
-    "email": "Email",
     "phone": "Teléfono",
     "goToPayment": "Ir al Pago",
-    "confirmationNote": "Recibirás un email de confirmación. Cancelación gratuita hasta 48h antes.",
-    "validEmail": "Introduce un email válido",
+    "confirmationNote": "Cancelación gratuita hasta 48h antes.",
     "validPhone": "Introduce un teléfono válido (mín. 7 dígitos)",
     "confirmed": "¡Reserva Confirmada!",
     "confirmedMessage": "Hemos recibido tu solicitud para",
-    "confirmationEmail": "Te enviaremos un email de confirmación en breve.",
+    "confirmationEmail": "Te contactaremos por teléfono para confirmar tu reserva.",
     "weekdays": ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"],
     "months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
   },
@@ -168,7 +166,7 @@
   },
   "SuccessPage": {
     "title": "¡Reserva Confirmada!",
-    "description": "Tu pago se ha procesado correctamente. Hemos recibido tu reserva y te enviaremos un email de confirmación en breve.",
+    "description": "Tu pago se ha procesado correctamente. Hemos recibido tu reserva y te contactaremos por teléfono para confirmarla.",
     "backHome": "Volver al Inicio",
     "cancellation": "Cancelación gratuita hasta 48h antes de la llegada."
   },

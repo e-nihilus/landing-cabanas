@@ -1,5 +1,10 @@
-import { supabase } from "./supabase";
+import { supabaseAnon, createSupabaseAuth } from "./supabase";
+import { supabaseService } from "./supabase-server";
 import { v4 as uuidv4 } from "uuid";
+
+// ════════════════════════════════════════════════════════════
+// Tipos
+// ════════════════════════════════════════════════════════════
 
 export interface Reservation {
   id: string;
@@ -10,16 +15,20 @@ export interface Reservation {
   guests: number;
   totalPrice: number;
   status: "pending" | "confirmed" | "awaiting_transfer" | "awaiting_bizum" | "cancelled";
-  paymentMethod: "paypal" | "transfer" | "bizum" | "admin";
+  paymentMethod: "transfer" | "bizum" | "admin";
   name: string;
-  email: string;
   phone: string;
-  paypalOrderId?: string;
   createdAt: string;
 }
 
-// Mapeo de columnas snake_case (Supabase) a camelCase (app)
-function mapRow(row: Record<string, any>): Reservation {
+export interface CustomPrice {
+  id: string;
+  cabinId: string;
+  date: string;
+  price: number;
+}
+
+function mapReservation(row: Record<string, any>): Reservation {
   return {
     id: row.id,
     cabinId: row.cabin_id,
@@ -31,15 +40,59 @@ function mapRow(row: Record<string, any>): Reservation {
     status: row.status,
     paymentMethod: row.payment_method,
     name: row.name,
-    email: row.email,
     phone: row.phone,
-    paypalOrderId: row.paypal_order_id ?? undefined,
     createdAt: row.created_at,
   };
 }
 
+function mapCustomPrice(row: Record<string, any>): CustomPrice {
+  return { id: row.id, cabinId: row.cabin_id, date: row.date, price: row.price };
+}
+
+// ════════════════════════════════════════════════════════════
+// FUNCIONES PÚBLICAS (usan supabaseAnon, leen booked_dates)
+// ════════════════════════════════════════════════════════════
+
+export async function getBookedDatesForCabin(cabinId: string): Promise<{ checkIn: string; checkOut: string }[]> {
+  const { data, error } = await supabaseAnon
+    .from("booked_dates")
+    .select("check_in, check_out")
+    .eq("cabin_id", cabinId);
+
+  if (error) throw new Error(`Error obteniendo fechas: ${error.message}`);
+  return (data || []).map((r) => ({ checkIn: r.check_in, checkOut: r.check_out }));
+}
+
+export async function checkAvailability(cabinId: string, checkIn: string, checkOut: string): Promise<boolean> {
+  const { data, error } = await supabaseAnon
+    .from("booked_dates")
+    .select("id")
+    .eq("cabin_id", cabinId)
+    .lt("check_in", checkOut)
+    .gt("check_out", checkIn);
+
+  if (error) throw new Error(`Error verificando disponibilidad: ${error.message}`);
+  return (data || []).length === 0;
+}
+
+export async function getCustomPricesForCabin(cabinId: string): Promise<CustomPrice[]> {
+  const { data, error } = await supabaseAnon
+    .from("custom_prices")
+    .select("*")
+    .eq("cabin_id", cabinId)
+    .gte("date", new Date().toISOString().split("T")[0]);
+
+  if (error) throw new Error(`Error obteniendo precios: ${error.message}`);
+  return (data || []).map(mapCustomPrice);
+}
+
+// ════════════════════════════════════════════════════════════
+// FUNCIONES DE CREACIÓN (usan supabaseService, insertan en reservations)
+// El trigger en Supabase crea automáticamente el booked_dates
+// ════════════════════════════════════════════════════════════
+
 export async function createReservation(data: Omit<Reservation, "createdAt">): Promise<Reservation> {
-  const { data: row, error } = await supabase
+  const { data: row, error } = await supabaseService
     .from("reservations")
     .insert({
       id: data.id,
@@ -52,81 +105,21 @@ export async function createReservation(data: Omit<Reservation, "createdAt">): P
       status: data.status,
       payment_method: data.paymentMethod,
       name: data.name,
-      email: data.email,
       phone: data.phone,
-      paypal_order_id: data.paypalOrderId ?? null,
     })
     .select()
     .single();
 
   if (error) throw new Error(`Error creando reserva: ${error.message}`);
-  return mapRow(row);
+  return mapReservation(row);
 }
 
-export async function getReservationById(id: string): Promise<Reservation | null> {
-  const { data, error } = await supabase
-    .from("reservations")
-    .select("*")
-    .eq("id", id)
-    .single();
+// ════════════════════════════════════════════════════════════
+// FUNCIONES ADMIN (usan supabaseAuth con JWT, respetan RLS)
+// ════════════════════════════════════════════════════════════
 
-  if (error) return null;
-  return mapRow(data);
-}
-
-export async function updateReservationStatus(id: string, status: Reservation["status"]): Promise<void> {
-  const { error } = await supabase
-    .from("reservations")
-    .update({ status })
-    .eq("id", id);
-
-  if (error) throw new Error(`Error actualizando estado: ${error.message}`);
-}
-
-// Filtro para reservas activas (confirmadas, pendientes <24h, transfer <48h)
-const ACTIVE_STATUS_FILTER = `
-  status.eq.confirmed,
-  and(status.eq.pending,created_at.gt.${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}),
-  and(status.eq.awaiting_transfer,created_at.gt.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()}),
-  and(status.eq.awaiting_bizum,created_at.gt.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()})
-`;
-
-async function getActiveReservationsForCabin(cabinId: string) {
-  // Primero obtenemos todas las reservas de la cabaña, luego filtramos en JS
-  // porque los filtros OR complejos con AND anidados son más fiables así
-  const { data, error } = await supabase
-    .from("reservations")
-    .select("*")
-    .eq("cabin_id", cabinId);
-
-  if (error) throw new Error(`Error obteniendo reservas: ${error.message}`);
-
-  const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-  const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60 * 1000);
-
-  return (data || []).filter((r) => {
-    if (r.status === "confirmed") return true;
-    if (r.status === "pending" && new Date(r.created_at) > oneDayAgo) return true;
-    if (r.status === "awaiting_transfer" && new Date(r.created_at) > twoDaysAgo) return true;
-    if (r.status === "awaiting_bizum" && new Date(r.created_at) > twoDaysAgo) return true;
-    return false;
-  });
-}
-
-export async function getBookedDatesForCabin(cabinId: string): Promise<{ checkIn: string; checkOut: string }[]> {
-  const rows = await getActiveReservationsForCabin(cabinId);
-  return rows.map((r) => ({ checkIn: r.check_in, checkOut: r.check_out }));
-}
-
-export async function checkAvailability(cabinId: string, checkIn: string, checkOut: string): Promise<boolean> {
-  const rows = await getActiveReservationsForCabin(cabinId);
-  // Comprobar solapamiento: existe conflicto si check_in < checkOut AND check_out > checkIn
-  const conflict = rows.some((r) => r.check_in < checkOut && r.check_out > checkIn);
-  return !conflict;
-}
-
-export async function getTransferReservations(): Promise<Reservation[]> {
+export async function getTransferReservations(accessToken: string): Promise<Reservation[]> {
+  const supabase = createSupabaseAuth(accessToken);
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
@@ -135,11 +128,11 @@ export async function getTransferReservations(): Promise<Reservation[]> {
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(`Error obteniendo transferencias: ${error.message}`);
-  return (data || []).map(mapRow);
+  return (data || []).map(mapReservation);
 }
 
-// Get ALL reservations for a cabin (for admin view - includes admin blocks)
-export async function getAllReservationsForCabin(cabinId: string): Promise<Reservation[]> {
+export async function getAllReservationsForCabin(accessToken: string, cabinId: string): Promise<Reservation[]> {
+  const supabase = createSupabaseAuth(accessToken);
   const { data, error } = await supabase
     .from("reservations")
     .select("*")
@@ -148,12 +141,31 @@ export async function getAllReservationsForCabin(cabinId: string): Promise<Reser
     .order("check_in", { ascending: true });
 
   if (error) throw new Error(`Error obteniendo reservas: ${error.message}`);
-  return (data || []).map(mapRow);
+  return (data || []).map(mapReservation);
 }
 
-// Create a manual admin block (reservation with payment_method 'admin')
-export async function createAdminBlock(cabinId: string, checkIn: string, checkOut: string): Promise<Reservation> {
-  const { data: row, error } = await supabase
+export async function updateReservationStatus(accessToken: string, id: string, status: Reservation["status"]): Promise<void> {
+  const supabase = createSupabaseAuth(accessToken);
+  const { error } = await supabase
+    .from("reservations")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) throw new Error(`Error actualizando estado: ${error.message}`);
+}
+
+export async function createAdminBlock(accessToken: string, cabinId: string, checkIn: string, checkOut: string): Promise<Reservation> {
+  // Usamos service porque el trigger necesita insertar en booked_dates
+  // pero primero verificamos que el token es de admin
+  const supabase = createSupabaseAuth(accessToken);
+  const { data: adminCheck } = await supabase
+    .from("admin_users")
+    .select("id")
+    .single();
+
+  if (!adminCheck) throw new Error("No autorizado");
+
+  const { data: row, error } = await supabaseService
     .from("reservations")
     .insert({
       id: uuidv4(),
@@ -166,18 +178,17 @@ export async function createAdminBlock(cabinId: string, checkIn: string, checkOu
       status: "confirmed",
       payment_method: "admin",
       name: "Bloqueo Admin",
-      email: "",
       phone: "",
     })
     .select()
     .single();
 
   if (error) throw new Error(`Error creando bloqueo: ${error.message}`);
-  return mapRow(row);
+  return mapReservation(row);
 }
 
-// Delete an admin block
-export async function deleteAdminBlock(id: string): Promise<void> {
+export async function deleteAdminBlock(accessToken: string, id: string): Promise<void> {
+  const supabase = createSupabaseAuth(accessToken);
   const { error } = await supabase
     .from("reservations")
     .delete()
@@ -187,8 +198,8 @@ export async function deleteAdminBlock(id: string): Promise<void> {
   if (error) throw new Error(`Error eliminando bloqueo: ${error.message}`);
 }
 
-// Cancel any reservation (for admin to release dates)
-export async function cancelReservation(id: string): Promise<void> {
+export async function cancelReservation(accessToken: string, id: string): Promise<void> {
+  const supabase = createSupabaseAuth(accessToken);
   const { error } = await supabase
     .from("reservations")
     .update({ status: "cancelled" })
@@ -197,15 +208,8 @@ export async function cancelReservation(id: string): Promise<void> {
   if (error) throw new Error(`Error cancelando reserva: ${error.message}`);
 }
 
-// Custom prices
-export interface CustomPrice {
-  id: string;
-  cabinId: string;
-  date: string;
-  price: number;
-}
-
-export async function getCustomPricesForCabin(cabinId: string): Promise<CustomPrice[]> {
+export async function getAdminCustomPrices(accessToken: string, cabinId: string): Promise<CustomPrice[]> {
+  const supabase = createSupabaseAuth(accessToken);
   const { data, error } = await supabase
     .from("custom_prices")
     .select("*")
@@ -213,15 +217,11 @@ export async function getCustomPricesForCabin(cabinId: string): Promise<CustomPr
     .gte("date", new Date().toISOString().split("T")[0]);
 
   if (error) throw new Error(`Error obteniendo precios: ${error.message}`);
-  return (data || []).map((row: any) => ({
-    id: row.id,
-    cabinId: row.cabin_id,
-    date: row.date,
-    price: row.price,
-  }));
+  return (data || []).map(mapCustomPrice);
 }
 
-export async function setCustomPrice(cabinId: string, date: string, price: number): Promise<CustomPrice> {
+export async function setCustomPrice(accessToken: string, cabinId: string, date: string, price: number): Promise<CustomPrice> {
+  const supabase = createSupabaseAuth(accessToken);
   const { data: row, error } = await supabase
     .from("custom_prices")
     .upsert(
@@ -232,10 +232,11 @@ export async function setCustomPrice(cabinId: string, date: string, price: numbe
     .single();
 
   if (error) throw new Error(`Error guardando precio: ${error.message}`);
-  return { id: row.id, cabinId: row.cabin_id, date: row.date, price: row.price };
+  return mapCustomPrice(row);
 }
 
-export async function deleteCustomPrice(cabinId: string, date: string): Promise<void> {
+export async function deleteCustomPrice(accessToken: string, cabinId: string, date: string): Promise<void> {
+  const supabase = createSupabaseAuth(accessToken);
   const { error } = await supabase
     .from("custom_prices")
     .delete()

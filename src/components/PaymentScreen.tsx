@@ -13,7 +13,6 @@ interface PaymentScreenProps {
   pets: number;
   totalPrice: number;
   name: string;
-  email: string;
   phone: string;
   onBack: () => void;
   onSuccess: () => void;
@@ -29,7 +28,6 @@ export default function PaymentScreen({
   pets,
   totalPrice,
   name,
-  email,
   phone,
   onBack,
   onSuccess,
@@ -47,7 +45,6 @@ export default function PaymentScreen({
     guests,
     totalPrice,
     name,
-    email,
     phone,
   };
 
