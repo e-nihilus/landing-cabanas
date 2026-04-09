@@ -43,7 +43,7 @@ export default function PaymentScreen({
     checkOut,
     nights,
     guests,
-    totalPrice,
+    pets,
     name,
     phone,
   };
@@ -71,7 +71,7 @@ export default function PaymentScreen({
       });
       const data = await res.json();
       if (data.reservationId) {
-        window.location.href = `/${locale}/reserva/bizum?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
+        window.location.href = `/${locale}/reserva/bizum?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${data.totalPrice}`;
       } else {
         setError(data.error || t("errorCreating"));
         setLoading(false);
@@ -105,7 +105,7 @@ export default function PaymentScreen({
       });
       const data = await res.json();
       if (data.reservationId) {
-        window.location.href = `/${locale}/reserva/transferencia?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${totalPrice}`;
+        window.location.href = `/${locale}/reserva/transferencia?id=${data.reservationId}&checkIn=${checkIn}&checkOut=${checkOut}&total=${data.totalPrice}`;
       } else {
         setError(data.error || t("errorCreating"));
         setLoading(false);
