@@ -1,3 +1,12 @@
+export interface SeasonalPrice {
+  startMonth: number; // 1-12
+  startDay: number;
+  endMonth: number; // 1-12
+  endDay: number;
+  pricePerNight: number;
+  priceWeekend: number;
+}
+
 export interface Cabin {
   id: string;
   name: string;
@@ -10,6 +19,7 @@ export interface Cabin {
   beds: number;
   pricePerNight: number;
   priceWeekend: number;
+  seasonalPricing: SeasonalPrice[];
   extraGuestPrice: number;
   cleaningFee: number;
   weeklyDiscount: number;
@@ -20,6 +30,35 @@ export interface Cabin {
   images: string[];
   isPrimary: boolean;
   airbnbUrl: string;
+}
+
+export function getSeasonalPrice(
+  cabin: Cabin,
+  date: Date
+): { pricePerNight: number; priceWeekend: number } {
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  for (const season of cabin.seasonalPricing) {
+    const afterStart =
+      month > season.startMonth ||
+      (month === season.startMonth && day >= season.startDay);
+    const beforeEnd =
+      month < season.endMonth ||
+      (month === season.endMonth && day <= season.endDay);
+
+    if (afterStart && beforeEnd) {
+      return {
+        pricePerNight: season.pricePerNight,
+        priceWeekend: season.priceWeekend,
+      };
+    }
+  }
+
+  return {
+    pricePerNight: cabin.pricePerNight,
+    priceWeekend: cabin.priceWeekend,
+  };
 }
 
 export interface PoolInfo {
@@ -51,6 +90,11 @@ export const cabins: Cabin[] = [
     beds: 3,
     pricePerNight: 90,
     priceWeekend: 130,
+    seasonalPricing: [
+      { startMonth: 6, startDay: 15, endMonth: 6, endDay: 30, pricePerNight: 98, priceWeekend: 139 },
+      { startMonth: 7, startDay: 1, endMonth: 8, endDay: 31, pricePerNight: 110, priceWeekend: 150 },
+      { startMonth: 9, startDay: 1, endMonth: 9, endDay: 15, pricePerNight: 98, priceWeekend: 139 },
+    ],
     extraGuestPrice: 25,
     cleaningFee: 30,
     weeklyDiscount: 10,
@@ -166,6 +210,11 @@ export const cabins: Cabin[] = [
     beds: 2,
     pricePerNight: 89,
     priceWeekend: 110,
+    seasonalPricing: [
+      { startMonth: 6, startDay: 15, endMonth: 6, endDay: 30, pricePerNight: 95, priceWeekend: 118 },
+      { startMonth: 7, startDay: 1, endMonth: 8, endDay: 31, pricePerNight: 99, priceWeekend: 149 },
+      { startMonth: 9, startDay: 1, endMonth: 9, endDay: 15, pricePerNight: 95, priceWeekend: 118 },
+    ],
     extraGuestPrice: 25,
     cleaningFee: 30,
     weeklyDiscount: 10,

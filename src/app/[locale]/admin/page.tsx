@@ -75,6 +75,8 @@ function CalendarManager({ password }: { password: string }) {
   const [selectEnd, setSelectEnd] = useState<Date | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [calendarError, setCalendarError] = useState("");
+  const [customPrices, setCustomPrices] = useState<{ date: string; price: number; cabinId: string }[]>([]);
+  const [priceInput, setPriceInput] = useState("");
 
   const fetchCalendarData = useCallback(async (cabinId: string) => {
     setCalendarLoading(true);
@@ -93,16 +95,32 @@ function CalendarManager({ password }: { password: string }) {
     setCalendarLoading(false);
   }, [password]);
 
+  const fetchCustomPrices = useCallback(async (cabinId: string) => {
+    try {
+      const res = await fetch(`/api/admin/prices?cabinId=${cabinId}`, {
+        headers: { "x-admin-password": password },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCustomPrices(data.prices || []);
+      }
+    } catch {
+      // silently fail
+    }
+  }, [password]);
+
   const handleCalendarChange = (cabinId: string) => {
     setSelectedCalendar(cabinId);
     setSelectStart(null);
     setSelectEnd(null);
     fetchCalendarData(cabinId);
+    fetchCustomPrices(cabinId);
   };
 
   // Initial load
   useEffect(() => {
     fetchCalendarData(selectedCalendar);
+    fetchCustomPrices(selectedCalendar);
   }, []);
 
   const bookedDates = calendarReservations.flatMap((r) =>
@@ -187,6 +205,61 @@ function CalendarManager({ password }: { password: string }) {
     setActionLoading(null);
   };
 
+  const handleSetPrice = async () => {
+    if (!selectStart || !selectEnd || !priceInput) return;
+    setActionLoading("price");
+    try {
+      const dates: string[] = [];
+      const current = new Date(selectStart);
+      const end = new Date(selectEnd);
+      while (current <= end) {
+        dates.push(formatDateISO(current));
+        current.setDate(current.getDate() + 1);
+      }
+      const res = await fetch("/api/admin/prices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({
+          cabinId: selectedCalendar,
+          dates,
+          price: parseInt(priceInput),
+        }),
+      });
+      if (res.ok) {
+        setSelectStart(null);
+        setSelectEnd(null);
+        setPriceInput("");
+        fetchCustomPrices(selectedCalendar);
+      }
+    } catch {
+      setCalendarError("Error guardando precio");
+    }
+    setActionLoading(null);
+  };
+
+  const handleDeletePrice = async (date: string) => {
+    setActionLoading(date);
+    try {
+      const res = await fetch("/api/admin/prices", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({ cabinId: selectedCalendar, date }),
+      });
+      if (res.ok) {
+        fetchCustomPrices(selectedCalendar);
+      }
+    } catch {
+      setCalendarError("Error eliminando precio");
+    }
+    setActionLoading(null);
+  };
+
   const daysInMonth = getDaysInMonth(calendarYear, calendarMonth);
   const firstDay = getFirstDayOfMonth(calendarYear, calendarMonth);
   const today = new Date();
@@ -263,6 +336,7 @@ function CalendarManager({ password }: { password: string }) {
               const isSelectStart = selectStart && isSameDay(date, selectStart);
               const isSelectEnd = selectEnd && isSameDay(date, selectEnd);
               const isInSelection = selectStart && selectEnd && date >= selectStart && date <= selectEnd;
+              const customPrice = customPrices.find((cp) => cp.date === formatDateISO(date));
 
               return (
                 <button
@@ -281,10 +355,19 @@ function CalendarManager({ password }: { password: string }) {
                       ? "bg-orange-200 text-orange-800 font-medium"
                       : isBooked
                       ? "bg-red-200 text-red-800 font-medium"
+                      : customPrice
+                      ? "bg-emerald-50 text-gray-700 ring-1 ring-emerald-300 hover:bg-emerald-100 cursor-pointer"
                       : "text-gray-700 hover:bg-gray-100 cursor-pointer"
                   }`}
                 >
-                  {date.getDate()}
+                  <>
+                    {date.getDate()}
+                    {customPrice && (
+                      <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-[8px] text-emerald-600 font-bold leading-none">
+                        {customPrice.price}€
+                      </span>
+                    )}
+                  </>
                 </button>
               );
             })}
@@ -300,6 +383,9 @@ function CalendarManager({ password }: { password: string }) {
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-3 h-3 bg-orange-200 rounded" /> Bloqueo admin
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 bg-emerald-100 rounded border border-emerald-400" /> Precio custom
             </span>
           </div>
 
@@ -323,6 +409,22 @@ function CalendarManager({ password }: { password: string }) {
                   className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors text-sm"
                 >
                   Cancelar
+                </button>
+              </div>
+              <div className="flex gap-2 items-center mt-3 pt-3 border-t border-blue-200">
+                <input
+                  type="number"
+                  value={priceInput}
+                  onChange={(e) => setPriceInput(e.target.value)}
+                  placeholder="Precio €"
+                  className="w-24 px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <button
+                  onClick={handleSetPrice}
+                  disabled={!priceInput || actionLoading === "price"}
+                  className="px-4 py-2 bg-emerald-500 text-white rounded-lg font-semibold hover:bg-emerald-600 transition-colors disabled:opacity-50 text-sm"
+                >
+                  {actionLoading === "price" ? "Guardando..." : "💰 Fijar precio"}
                 </button>
               </div>
             </div>
@@ -364,6 +466,39 @@ function CalendarManager({ password }: { password: string }) {
                       className="px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg font-medium hover:bg-orange-200 transition-colors disabled:opacity-50 text-xs"
                     >
                       {actionLoading === r.id ? "..." : "🔓 Liberar"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Custom prices */}
+          {customPrices.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-emerald-700 mb-2">
+                💰 Precios personalizados ({customPrices.length})
+              </h4>
+              <div className="space-y-2">
+                {customPrices
+                  .sort((a, b) => a.date.localeCompare(b.date))
+                  .map((cp) => (
+                  <div
+                    key={cp.date}
+                    className="bg-white rounded-lg p-3 shadow-sm border border-emerald-200 flex items-center justify-between gap-3"
+                  >
+                    <div>
+                      <p className="text-sm text-gray-800 font-medium">
+                        {new Date(cp.date + "T12:00:00").toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })}
+                      </p>
+                      <p className="text-xs text-emerald-600 font-bold">{cp.price}€/noche</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeletePrice(cp.date)}
+                      disabled={actionLoading === cp.date}
+                      className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg font-medium hover:bg-red-200 transition-colors disabled:opacity-50 text-xs"
+                    >
+                      {actionLoading === cp.date ? "..." : "✕"}
                     </button>
                   </div>
                 ))}

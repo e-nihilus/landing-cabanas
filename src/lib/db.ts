@@ -196,3 +196,51 @@ export async function cancelReservation(id: string): Promise<void> {
 
   if (error) throw new Error(`Error cancelando reserva: ${error.message}`);
 }
+
+// Custom prices
+export interface CustomPrice {
+  id: string;
+  cabinId: string;
+  date: string;
+  price: number;
+}
+
+export async function getCustomPricesForCabin(cabinId: string): Promise<CustomPrice[]> {
+  const { data, error } = await supabase
+    .from("custom_prices")
+    .select("*")
+    .eq("cabin_id", cabinId)
+    .gte("date", new Date().toISOString().split("T")[0]);
+
+  if (error) throw new Error(`Error obteniendo precios: ${error.message}`);
+  return (data || []).map((row: any) => ({
+    id: row.id,
+    cabinId: row.cabin_id,
+    date: row.date,
+    price: row.price,
+  }));
+}
+
+export async function setCustomPrice(cabinId: string, date: string, price: number): Promise<CustomPrice> {
+  const { data: row, error } = await supabase
+    .from("custom_prices")
+    .upsert(
+      { cabin_id: cabinId, date, price },
+      { onConflict: "cabin_id,date" }
+    )
+    .select()
+    .single();
+
+  if (error) throw new Error(`Error guardando precio: ${error.message}`);
+  return { id: row.id, cabinId: row.cabin_id, date: row.date, price: row.price };
+}
+
+export async function deleteCustomPrice(cabinId: string, date: string): Promise<void> {
+  const { error } = await supabase
+    .from("custom_prices")
+    .delete()
+    .eq("cabin_id", cabinId)
+    .eq("date", date);
+
+  if (error) throw new Error(`Error eliminando precio: ${error.message}`);
+}

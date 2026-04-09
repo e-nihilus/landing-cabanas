@@ -51,6 +51,8 @@
     "checkOut": "Check-out",
     "selectDate": "Select date",
     "guests": "Guests",
+    "pets": "Pets",
+    "petsInfo": "max. 2, 5€/pet",
     "accommodation": "Accommodation",
     "nights": "nights",
     "extraPersons": "extra guests",

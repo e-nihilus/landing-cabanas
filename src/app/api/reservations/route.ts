@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBookedDatesForCabin } from "@/lib/db";
+import { getBookedDatesForCabin, getCustomPricesForCabin } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   const cabinId = request.nextUrl.searchParams.get("cabinId");
@@ -7,6 +7,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "cabinId requerido" }, { status: 400 });
   }
 
-  const booked = await getBookedDatesForCabin(cabinId);
-  return NextResponse.json({ booked });
+  const [booked, customPrices] = await Promise.all([
+    getBookedDatesForCabin(cabinId),
+    getCustomPricesForCabin(cabinId),
+  ]);
+  return NextResponse.json({ booked, customPrices });
 }

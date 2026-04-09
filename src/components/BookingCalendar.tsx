@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { cabins, pool, type Cabin } from "@/lib/data";
+import { cabins, pool, type Cabin, getSeasonalPrice } from "@/lib/data";
 import SectionHeader from "./SectionHeader";
 import PaymentScreen from "./PaymentScreen";
 import { useTranslations, useLocale } from "next-intl";
@@ -11,6 +11,7 @@ interface BookingState {
   startDate: Date | null;
   endDate: Date | null;
   guests: number;
+  pets: number;
   name: string;
   email: string;
   phone: string;
@@ -176,6 +177,7 @@ export default function BookingCalendar({
     startDate: null,
     endDate: null,
     guests: 2,
+    pets: 0,
     name: "",
     email: "",
     phone: "",
@@ -186,6 +188,7 @@ export default function BookingCalendar({
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState<"dates" | "details" | "payment">("dates");
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
+  const [customPrices, setCustomPrices] = useState<{ date: string; price: number }[]>([]);
   const [formErrors, setFormErrors] = useState<{ email?: string; phone?: string }>({});
 
   // Fetch booked dates from backend
@@ -199,6 +202,7 @@ export default function BookingCalendar({
         dates.push(...generated);
       }
       setBookedDates(dates);
+      setCustomPrices((data.customPrices || []).map((cp: any) => ({ date: cp.date, price: cp.price })));
     } catch {
       setBookedDates([]);
     }
@@ -267,7 +271,7 @@ export default function BookingCalendar({
       : 0;
 
   const calculatePrice = () => {
-    if (nights === 0) return { base: 0, extraGuests: 0, cleaning: 0, discount: 0, total: 0 };
+    if (nights === 0) return { base: 0, extraGuests: 0, cleaning: 0, discount: 0, petsFee: 0, total: 0 };
 
     let base = 0;
     const currentDate = new Date(booking.startDate!);
@@ -277,9 +281,15 @@ export default function BookingCalendar({
       const dayOfWeek = currentDate.getDay();
       const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
 
-      const nightPrice = isWeekend
-        ? selectedCabin.priceWeekend
-        : selectedCabin.pricePerNight;
+      const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+      const custom = customPrices.find((cp) => cp.date === dateStr);
+      let nightPrice: number;
+      if (custom) {
+        nightPrice = custom.price;
+      } else {
+        const seasonal = getSeasonalPrice(selectedCabin, currentDate);
+        nightPrice = isWeekend ? seasonal.priceWeekend : seasonal.pricePerNight;
+      }
 
       base += nightPrice;
       currentDate.setDate(currentDate.getDate() + 1);
@@ -297,9 +307,10 @@ export default function BookingCalendar({
     }
 
     const cleaning = selectedCabin.cleaningFee;
-    const total = Math.round(subtotal + cleaning);
+    const petsFee = booking.pets * 5;
+    const total = Math.round(subtotal + cleaning + petsFee);
 
-    return { base, extraGuests, cleaning, discount, total };
+    return { base, extraGuests, cleaning, discount, petsFee, total };
   };
 
   const priceBreakdown = calculatePrice();
@@ -345,6 +356,7 @@ export default function BookingCalendar({
         startDate: null,
         endDate: null,
         guests: 2,
+        pets: 0,
         name: "",
         email: "",
         phone: "",
@@ -425,6 +437,7 @@ export default function BookingCalendar({
               checkOut={formatDateISO(booking.endDate!)}
               nights={nights}
               guests={booking.guests}
+              pets={booking.pets}
               totalPrice={totalPrice}
               name={booking.name}
               email={booking.email}
@@ -536,6 +549,38 @@ export default function BookingCalendar({
                         </button>
                       </div>
                     </div>
+
+                    {/* Pets */}
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-text-muted">{t("pets")} <span className="text-xs">({t("petsInfo")})</span></span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() =>
+                            setBooking({
+                              ...booking,
+                              pets: Math.max(0, booking.pets - 1),
+                            })
+                          }
+                          className="w-7 h-7 rounded-full bg-beige-dark flex items-center justify-center text-text-dark hover:bg-primary hover:text-white transition-colors"
+                        >
+                          −
+                        </button>
+                        <span className="font-medium w-4 text-center">
+                          {booking.pets}
+                        </span>
+                        <button
+                          onClick={() =>
+                            setBooking({
+                              ...booking,
+                              pets: Math.min(2, booking.pets + 1),
+                            })
+                          }
+                          className="w-7 h-7 rounded-full bg-beige-dark flex items-center justify-center text-text-dark hover:bg-primary hover:text-white transition-colors"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   {nights > 0 && (
@@ -564,6 +609,14 @@ export default function BookingCalendar({
                         <span className="text-text-muted">{t("cleaning")}</span>
                         <span className="font-medium">{priceBreakdown.cleaning}€</span>
                       </div>
+                      {priceBreakdown.petsFee > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-text-muted">
+                            🐾 {t("pets")} × {booking.pets} (5€)
+                          </span>
+                          <span className="font-medium">{priceBreakdown.petsFee}€</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-lg font-bold text-primary border-t border-beige-dark pt-2">
                         <span>{t("total")}</span>
                         <span>{totalPrice}€</span>

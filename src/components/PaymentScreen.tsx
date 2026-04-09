@@ -10,6 +10,7 @@ interface PaymentScreenProps {
   checkOut: string;
   nights: number;
   guests: number;
+  pets: number;
   totalPrice: number;
   name: string;
   email: string;
@@ -25,6 +26,7 @@ export default function PaymentScreen({
   checkOut,
   nights,
   guests,
+  pets,
   totalPrice,
   name,
   email,
@@ -146,6 +148,7 @@ export default function PaymentScreen({
             month: "short",
           })}{" "}
           · {nights} {t("nightsLabel")} · {guests} {t("guestsLabel")}
+          {pets > 0 && <> · 🐾 {pets}</>}
         </p>
         <p className="text-primary font-bold text-xl mt-2">{totalPrice}€</p>
       </div>
