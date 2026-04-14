@@ -42,7 +42,7 @@ export default function Footer() {
         <div className="py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🏡</span>
+              <img src="/logo.ico" alt="Logo" className="w-7 h-7" />
               <span className="font-display text-xl font-semibold">
                 Chica de Navalmelendro
               </span>
