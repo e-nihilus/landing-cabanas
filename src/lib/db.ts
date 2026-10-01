@@ -13,6 +13,7 @@ export interface Reservation {
   checkOut: string;
   nights: number;
   guests: number;
+  pets: number | null;
   totalPrice: number;
   status: "pending" | "confirmed" | "awaiting_transfer" | "awaiting_bizum" | "cancelled";
   paymentMethod: "transfer" | "bizum" | "admin";
@@ -36,6 +37,7 @@ function mapReservation(row: Record<string, any>): Reservation {
     checkOut: row.check_out,
     nights: row.nights,
     guests: row.guests,
+    pets: row.pets ?? null,
     totalPrice: row.total_price,
     status: row.status,
     paymentMethod: row.payment_method,
@@ -101,6 +103,7 @@ export async function createReservation(data: Omit<Reservation, "createdAt">): P
       check_out: data.checkOut,
       nights: data.nights,
       guests: data.guests,
+      pets: data.pets,
       total_price: data.totalPrice,
       status: data.status,
       payment_method: data.paymentMethod,
@@ -174,6 +177,7 @@ export async function createAdminBlock(accessToken: string, cabinId: string, che
       check_out: checkOut,
       nights: Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)),
       guests: 0,
+      pets: null,
       total_price: 0,
       status: "confirmed",
       payment_method: "admin",

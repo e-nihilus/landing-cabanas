@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
     if (!cabinId || !checkIn || !checkOut || !name || !phone) {
       return NextResponse.json({ error: "Faltan datos obligatorios" }, { status: 400 });
     }
+    if (!Number.isInteger(pets) || pets < 0 || pets > 2) {
+      return NextResponse.json({ error: "Número de mascotas inválido" }, { status: 400 });
+    }
 
     const available = await checkAvailability(cabinId, checkIn, checkOut);
     if (!available) {
@@ -35,6 +38,7 @@ export async function POST(request: NextRequest) {
       checkOut,
       nights,
       guests,
+      pets,
       totalPrice,
       status: "awaiting_bizum",
       paymentMethod: "bizum",

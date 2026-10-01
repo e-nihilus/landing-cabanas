@@ -10,6 +10,7 @@ interface Reservation {
   checkOut: string;
   nights: number;
   guests: number;
+  pets: number | null;
   totalPrice: number;
   status: string;
   paymentMethod?: string;
@@ -31,6 +32,11 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 const WEEKDAYS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"];
+
+function formatPets(pets: number | null): string {
+  if (pets === null) return "Mascotas: No consta";
+  return pets === 0 ? "Mascotas: No" : `Mascotas: Sí (${pets})`;
+}
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -532,6 +538,9 @@ function CalendarManager({ accessToken }: { accessToken: string }) {
                       <p className="text-xs text-gray-500">
                         {new Date(r.checkIn).toLocaleDateString("es-ES")} → {new Date(r.checkOut).toLocaleDateString("es-ES")} · {r.nights} noches · {r.totalPrice}€
                       </p>
+                      <p className="text-xs text-gray-500">
+                        Personas: {r.guests} · {formatPets(r.pets)}
+                      </p>
                       {r.phone && (
                         <p className="text-xs text-gray-400">
                           📞 {r.phone}
@@ -767,7 +776,7 @@ export default function AdminPage() {
                           <strong>{r.cabinId}</strong> ·{" "}
                           {new Date(r.checkIn).toLocaleDateString("es-ES")} →{" "}
                           {new Date(r.checkOut).toLocaleDateString("es-ES")} ·{" "}
-                          {r.nights} noches · {r.guests} huéspedes
+                          {r.nights} noches · Personas: {r.guests} · {formatPets(r.pets)}
                         </p>
                         <p className="text-gray-600 text-sm mt-1">
                           📞 {r.phone}
@@ -828,7 +837,7 @@ export default function AdminPage() {
                           <strong>{r.cabinId}</strong> ·{" "}
                           {new Date(r.checkIn).toLocaleDateString("es-ES")} →{" "}
                           {new Date(r.checkOut).toLocaleDateString("es-ES")} ·{" "}
-                          {r.nights} noches · {r.totalPrice}€
+                          {r.nights} noches · {r.totalPrice}€ · Personas: {r.guests} · {formatPets(r.pets)}
                         </p>
                         {r.phone && (
                           <p className="text-gray-400 text-sm mt-1">
